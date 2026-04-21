@@ -1,0 +1,3121 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Panel de Administración - COMPUTEC</title>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="admin-header-section.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="auth.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a192f 0%, #0d3b4f 50%, #0f5257 100%);
+            min-height: 100vh;
+            color: white;
+            text-rendering: optimizeLegibility;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        /* Header Styles */
+        .admin-header {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .admin-header h1 {
+            color: #0ea5e9;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Container & Content - FIXED: Margin-top optimizado (menos distancia) */
+        .admin-container {
+            max-width: 1200px;
+            margin: 100px auto 2rem;
+            padding: 0 1.5rem;
+        }
+
+        .admin-content {
+            background: #ffffff;
+            color: #1e293b;
+            padding: 0;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        /* Tabs Styles */
+        .admin-tabs {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            margin: 0;
+            padding: 0 2rem;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .tab-btn {
+            appearance: none;
+            -webkit-appearance: none;
+            background: transparent;
+            border: none;
+            padding: 18px 28px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            min-height: 60px;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+
+        .tab-btn:hover {
+            color: #0ea5e9;
+            background: linear-gradient(180deg, rgba(14, 165, 233, 0.08) 0%, rgba(14, 165, 233, 0.03) 100%);
+        }
+
+        .tab-btn.active {
+            color: #0ea5e9;
+            border-bottom-color: #0ea5e9;
+            background: white;
+            box-shadow: inset 0 -1px 0 #0ea5e9;
+        }
+
+        .tab-btn i {
+            font-size: 1.1rem;
+            width: 1.2rem;
+            text-align: center;
+            line-height: 1;
+        }
+
+        .tab-btn .badge {
+            background: #e2e8f0;
+            color: #64748b;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .tab-btn.active .badge {
+            background: #0ea5e9;
+            color: white;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            padding: 2rem;
+            background: white;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Form Sections */
+        .news-form-section,
+        .gallery-admin-section {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .news-form-section h3,
+        .gallery-admin-section h3 {
+            color: #0f172a;
+            margin-bottom: 1.25rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .news-form-section h3 i,
+        .gallery-admin-section h3 i {
+            color: #0ea5e9;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #334155;
+            font-size: 0.9rem;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="date"],
+        .form-group input[type="number"],
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            transition: all 0.3s;
+            background: white;
+            color: #1e293b;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+        }
+
+        .form-group input[type="checkbox"] {
+            margin-right: 0.5rem;
+            width: 18px;
+            height: 18px;
+            accent-color: #0ea5e9;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 12px 24px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+            border-color: #cbd5e1;
+        }
+
+        .btn-edit {
+            background: #fef3c7;
+            color: #b45309;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 0.5rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-edit:hover {
+            background: #fde68a;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-delete:hover {
+            background: #fecaca;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .news-list-section h3,
+        .gallery-admin-section h4 {
+            color: #0f172a;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        /* News List */
+        .news-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .news-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        .news-item:hover {
+            border-color: #0ea5e9;
+            box-shadow: 0 2px 10px rgba(14, 165, 233, 0.1);
+        }
+
+        .news-info {
+            flex: 1;
+        }
+
+        .news-info h4 {
+            margin: 0 0 0.25rem 0;
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+
+        .news-info span {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .news-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #94a3b8;
+            padding: 2rem;
+            background: #f8fafc;
+            border-radius: 10px;
+            border: 2px dashed #e2e8f0;
+        }
+
+        /* Gallery Settings */
+        .gallery-settings {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .gallery-settings .form-group {
+            margin-bottom: 0;
+        }
+
+        .gallery-settings label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #334155;
+            font-size: 0.9rem;
+        }
+
+        .gallery-settings input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .gallery-settings input[type="number"]:focus {
+            border-color: #0ea5e9;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+        }
+
+        .gallery-settings small {
+            display: block;
+            margin-top: 0.35rem;
+            color: #94a3b8;
+            font-size: 0.8rem;
+        }
+
+        /* Image Upload Area */
+        .image-upload-area {
+            border: 2px dashed #0ea5e9;
+            border-radius: 12px;
+            padding: 2.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f0f9ff;
+            margin-bottom: 1.5rem;
+        }
+
+        .image-upload-area:hover {
+            background: #e0f2fe;
+            border-color: #0284c7;
+            transform: scale(1.01);
+        }
+
+        .image-upload-area i {
+            font-size: 3rem;
+            color: #0ea5e9;
+            margin-bottom: 1rem;
+        }
+
+        .image-upload-area p {
+            color: #334155;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .image-upload-area span {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        /* Gallery Image List */
+        .gallery-image-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .gallery-image-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        .gallery-image-item:hover {
+            border-color: #0ea5e9;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.1);
+        }
+
+        .gallery-image-item.dragging {
+            opacity: 0.5;
+            transform: scale(0.98);
+        }
+
+        .image-preview {
+            width: 120px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 2px solid #e2e8f0;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .image-details input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .image-details input:focus {
+            outline: none;
+            border-color: #0ea5e9;
+        }
+
+        .image-details textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            resize: vertical;
+            min-height: 60px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .image-details textarea:focus {
+            outline: none;
+            border-color: #0ea5e9;
+        }
+
+        .image-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .image-actions .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+
+        .btn-move-up {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .btn-move-up:hover:not(:disabled) {
+            background: #bae6fd;
+        }
+
+        .btn-move-down {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .btn-move-down:hover:not(:disabled) {
+            background: #bae6fd;
+        }
+
+        .btn-delete-image {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .btn-delete-image:hover {
+            background: #fecaca;
+        }
+
+        .image-actions .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* Unsaved changes banner */
+        .unsaved-banner {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 10px 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-bottom: 1px solid #fde68a;
+        }
+        .unsaved-banner i { color: #f59e0b; }
+
+        /* Badge featured */
+        .badge-featured {
+            background: #0ea5e9;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Char counter */
+        .char-counter {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            text-align: right;
+            margin-top: 4px;
+        }
+
+        /* Header actions */
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .btn-header-action {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.25);
+            padding: 7px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+        .btn-header-action:hover { background: rgba(255,255,255,0.25); }
+
+        /* News preview modal */
+        .news-preview-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .news-preview-overlay.active { display: flex; }
+        .news-preview-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .news-preview-card h2 { color: #0f172a; margin-bottom: 0.5rem; font-size: 1.4rem; }
+        .news-preview-card .meta { color: #64748b; font-size: 0.9rem; margin-bottom: 1rem; display: flex; gap: 0.75rem; align-items: center; }
+        .news-preview-card p { color: #334155; line-height: 1.7; white-space: pre-wrap; }
+        .news-preview-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #f1f5f9;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+        }
+        .news-preview-close:hover { background: #e2e8f0; }
+
+        .admin-auth-gate {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.78);
+            backdrop-filter: blur(10px);
+            z-index: 10020;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .admin-auth-gate.active {
+            display: flex;
+        }
+
+        .admin-auth-card {
+            width: min(100%, 440px);
+            background: #ffffff;
+            color: #0f172a;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+        }
+
+        .admin-auth-card h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.4rem;
+            color: #0f172a;
+        }
+
+        .admin-auth-card p {
+            margin: 0 0 1.25rem 0;
+            color: #475569;
+            line-height: 1.55;
+        }
+
+        .admin-auth-card .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .admin-auth-error {
+            display: none;
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+            border-radius: 10px;
+            padding: 0.85rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .admin-auth-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            margin-top: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        /* Estadísticas del sitio (tab Estadísticas) */
+        .stats-dash-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+        .stats-live-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #475569;
+            background: #f1f5f9;
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid #e2e8f0;
+        }
+        .stats-live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.35);
+            animation: statsPulse 2s ease-in-out infinite;
+        }
+        @keyframes statsPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.65; transform: scale(0.92); }
+        }
+        .stats-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+        .stats-kpi {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem 1.1rem;
+        }
+        .stats-kpi h4 {
+            margin: 0 0 0.35rem 0;
+            font-size: 1.65rem;
+            color: #0ea5e9;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+        .stats-kpi span {
+            font-size: 0.82rem;
+            color: #64748b;
+            line-height: 1.35;
+        }
+        .stats-bars-wrap {
+            margin-top: 0.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+        }
+        .stats-bars-wrap h4 {
+            margin: 0 0 0.75rem 0;
+            font-size: 0.95rem;
+            color: #0f172a;
+        }
+        .stats-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 8px;
+            height: 140px;
+        }
+        .stats-bar-col {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            height: 100%;
+        }
+        .stats-bar-inner {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            min-height: 40px;
+        }
+        .stats-bar {
+            width: 100%;
+            max-width: 36px;
+            border-radius: 8px 8px 4px 4px;
+            background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 100%);
+            min-height: 4px;
+            transition: height 0.35s ease;
+        }
+        .stats-bar-label {
+            font-size: 0.68rem;
+            color: #64748b;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .stats-table-wrap {
+            overflow-x: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+        .stats-table th,
+        .stats-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .stats-table th {
+            background: #f1f5f9;
+            color: #334155;
+            font-weight: 600;
+        }
+        .stats-table tr:last-child td {
+            border-bottom: none;
+        }
+        .stats-hint {
+            margin-top: 1rem;
+            padding: 12px 14px;
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-radius: 10px;
+            color: #92400e;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        .stats-hint code {
+            font-size: 0.78rem;
+            background: rgba(255,255,255,0.7);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .admin-tabs {
+                padding: 0 0.5rem;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .tab-btn {
+                padding: 12px 14px;
+                font-size: 0.82rem;
+                flex-shrink: 0;
+            }
+            .tab-content {
+                padding: 1.25rem;
+            }
+            .gallery-image-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .image-preview {
+                width: 100%;
+                height: 180px;
+            }
+            .image-actions {
+                flex-direction: row;
+                justify-content: center;
+            }
+            .header-actions { gap: 0.25rem; }
+            .btn-header-action span { display: none; }
+        }
+
+        /* Mobile Performance Optimization - Admin Panel */
+        @media (max-width: 768px) {
+            .admin-header {
+                backdrop-filter: none !important;
+            }
+
+            .admin-content {
+                backdrop-filter: none !important;
+            }
+
+            h1, h2, h3, h4, h5, h6,
+            p, span, label, button, input, textarea {
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                text-rendering: optimizeLegibility;
+            }
+
+            img {
+                -webkit-backface-visibility: hidden;
+                backface-visibility: hidden;
+                image-rendering: -webkit-optimize-contrast;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="admin-header-section">
+        <a href="index.html" class="back-btn" onclick="return lockAdminAndGoHome(event)"><i class="fa-solid fa-arrow-left"></i> Volver al sitio</a>
+        <h2>Panel de Administración</h2>
+        <div class="header-actions">
+            <button class="btn-header-action" onclick="exportData()" title="Exportar todos los datos a JSON">
+                <i class="fa-solid fa-download"></i> <span>Exportar</span>
+            </button>
+            <button class="btn-header-action" onclick="importData()" title="Importar datos desde JSON">
+                <i class="fa-solid fa-upload"></i> <span>Importar</span>
+            </button>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fa-solid fa-sign-out-alt"></i> Cerrar Sesión
+            </button>
+        </div>
+    </header>
+
+    <div id="admin-auth-gate" class="admin-auth-gate" aria-hidden="true">
+        <div class="admin-auth-card">
+            <h3>Acceso administrativo</h3>
+            <p>Necesitas iniciar sesión para usar el panel de administración.</p>
+            <form id="admin-auth-form">
+                <div id="admin-auth-error" class="admin-auth-error"></div>
+                <div class="form-group">
+                    <label for="admin-auth-username">Usuario</label>
+                    <input type="text" id="admin-auth-username" autocomplete="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="admin-auth-password">Contraseña</label>
+                    <input type="password" id="admin-auth-password" autocomplete="current-password" required>
+                </div>
+                <div class="admin-auth-actions">
+                    <a href="index.html" class="btn-secondary" onclick="return lockAdminAndGoHome(event)"><i class="fa-solid fa-arrow-left"></i> Volver</a>
+                    <button type="submit" class="btn-primary"><i class="fa-solid fa-lock-open"></i> Entrar al panel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="unsaved-banner" class="unsaved-banner">
+        <i class="fa-solid fa-exclamation-triangle"></i>
+        Tienes cambios sin guardar. Guarda el formulario antes de salir.
+    </div>
+
+    <div class="admin-container">
+        <div class="admin-content">
+
+            <!-- Tabs Navigation -->
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-target="tab-news" onclick="openTab('news', this)">
+                    <i class="fa-solid fa-newspaper"></i> Noticias
+                </button>
+                <button class="tab-btn" data-target="tab-gallery" onclick="openTab('gallery', this)">
+                    <i class="fa-solid fa-images"></i> Galería
+                </button>
+                <button class="tab-btn" data-target="tab-projects" onclick="openTab('projects', this)">
+                    <i class="fa-solid fa-diagram-project"></i> Proyectos
+                </button>
+                <button class="tab-btn" data-target="tab-services" onclick="openTab('services', this)">
+                    <i class="fa-solid fa-screwdriver-wrench"></i> Servicios
+                </button>
+            </div>
+
+            <!-- Tab Content: News -->
+            <div id="tab-news" class="tab-content active">
+                <div class="news-form-section" id="news-form-section">
+                    <h3 id="form-title">Agregar Nueva Noticia</h3>
+                    <form id="news-form">
+                        <input type="hidden" id="news-id">
+                        <div class="form-group">
+                            <label for="news-title">Título:</label>
+                            <input type="text" id="news-title" name="title" required placeholder="Título de la noticia">
+                        </div>
+                        <div class="form-group">
+                            <label for="news-date">Fecha:</label>
+                            <input type="date" id="news-date" name="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="news-content">Contenido:</label>
+                            <textarea id="news-content" name="content" rows="5" required placeholder="Escribe el contenido de la noticia..."></textarea>
+                            <div class="char-counter" id="char-counter">0 caracteres</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="news-featured">
+                                <input type="checkbox" id="news-featured" name="featured">
+                                Destacado
+                            </label>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary"><i class="fa-solid fa-save"></i> Guardar</button>
+                            <button type="button" id="cancel-edit" class="btn-secondary" style="display: none;" onclick="resetForm()"><i class="fa-solid fa-times"></i> Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="news-list-section">
+                    <h3>Noticias Existentes</h3>
+                    <div id="admin-news-list" class="news-list">
+                        <!-- Lista de noticias -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Gallery -->
+            <div id="tab-gallery" class="tab-content">
+                <div class="gallery-admin-section">
+                    <h3><i class="fa-solid fa-images"></i> Imágenes Representativas del Taller</h3>
+                    
+                    <!-- Configuración de la galería -->
+                    <div class="gallery-settings">
+                        <div class="form-group">
+                            <label for="gallery-transition-time">Tiempo de transición (ms):</label>
+                            <input type="number" id="gallery-transition-time" value="5000" min="2000" max="15000" step="500" onchange="saveGalleryTransitionTime()">
+                            <small style="color: #666;">Tiempo entre cada cambio de imagen (2-15 segundos)</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Área de carga de imágenes -->
+                    <div class="image-upload-area" onclick="document.getElementById('gallery-image-input').click()">
+                        <i class="fa-solid fa-cloud-upload-alt"></i>
+                        <p>Haz clic aquí para seleccionar imágenes</p>
+                        <span>Formatos aceptados: JPG, PNG, GIF (máx. 10MB, hasta 20 imágenes)</span>
+                        <input type="file" id="gallery-image-input" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                    </div>
+                    
+                    <!-- Botones de acción -->
+                    <div class="form-actions" style="margin-bottom: 1.5rem;">
+                        <button type="button" class="btn-primary" onclick="previewGallery()">
+                            <i class="fa-solid fa-eye"></i> Previsualizar Galería
+                        </button>
+                    </div>
+                    
+                    <!-- Lista de imágenes -->
+                    <h4>Imágenes de la Galería</h4>
+                    <div id="admin-gallery-list" class="gallery-image-list">
+                        <!-- Lista de imágenes -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Projects -->
+            <div id="tab-projects" class="tab-content">
+                <div class="news-form-section">
+                    <h3 id="project-form-title">Agregar Proyecto</h3>
+                    <form id="project-form">
+                        <input type="hidden" id="project-id">
+                        <div class="form-group">
+                            <label for="project-title">Título del Proyecto:</label>
+                            <input type="text" id="project-title" required placeholder="Nombre del proyecto">
+                        </div>
+                        <div class="form-group">
+                            <label for="project-student">Estudiante(s):</label>
+                            <input type="text" id="project-student" required placeholder="Nombre del estudiante o equipo">
+                        </div>
+                        <div class="form-group">
+                            <label for="project-year">Año:</label>
+                            <input type="text" id="project-year" required placeholder="Ej: 2026">
+                        </div>
+                        <div class="form-group">
+                            <label for="project-category">Categoría:</label>
+                            <select id="project-category" style="width:100%;padding:12px 15px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.95rem;">
+                                <option value="Reparación">Reparación</option>
+                                <option value="Redes">Redes</option>
+                                <option value="Programación">Programación</option>
+                                <option value="Ciberseguridad">Ciberseguridad</option>
+                                <option value="IA">Inteligencia Artificial</option>
+                                <option value="Hardware">Hardware</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="project-description">Descripción:</label>
+                            <textarea id="project-description" rows="3" placeholder="Breve descripción del proyecto..."></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary"><i class="fa-solid fa-save"></i> Guardar</button>
+                            <button type="button" id="cancel-project-edit" class="btn-secondary" style="display:none;" onclick="resetProjectForm()"><i class="fa-solid fa-times"></i> Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="news-list-section">
+                    <h3>Proyectos Registrados</h3>
+                    <div id="admin-projects-list" class="news-list"></div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Services -->
+            <div id="tab-services" class="tab-content">
+                <div class="news-form-section">
+                    <h3 id="service-form-title">Agregar Servicio Técnico</h3>
+                    <form id="service-form">
+                        <input type="hidden" id="service-id">
+                        <div class="form-group">
+                            <label for="service-name">Nombre del Servicio:</label>
+                            <input type="text" id="service-name" required placeholder="Ej: Diagnóstico de PC">
+                        </div>
+                        <div class="form-group">
+                            <label for="service-description">Descripción:</label>
+                            <textarea id="service-description" rows="3" placeholder="Descripción breve del servicio..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="service-available">
+                                <input type="checkbox" id="service-available" checked>
+                                Disponible actualmente
+                            </label>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary"><i class="fa-solid fa-save"></i> Guardar</button>
+                            <button type="button" id="cancel-service-edit" class="btn-secondary" style="display:none;" onclick="resetServiceForm()"><i class="fa-solid fa-times"></i> Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="news-list-section">
+                    <h3>Servicios Registrados</h3>
+                    <div id="admin-services-list" class="news-list"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- News Preview Modal -->
+    <div id="news-preview-modal" class="news-preview-overlay">
+        <div class="news-preview-card">
+            <button class="news-preview-close" onclick="closeNewsPreview()">&#x2715;</button>
+            <div class="meta">
+                <span id="preview-news-date"></span>
+                <span id="preview-news-featured" style="display:none;" class="badge-featured">Destacado</span>
+            </div>
+            <h2 id="preview-news-title"></h2>
+            <p id="preview-news-content"></p>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEYS = {
+            NEWS: 'news',
+            PROJECTS: 'projects',
+            SERVICES: 'services',
+            GALLERY: 'galleryImages',
+            GALLERY_SETTINGS: 'gallerySettings',
+            ROLE: 'computec_admin_role',
+            ACTIVITY: 'computec_admin_activity',
+            SNAPSHOTS: 'computec_admin_snapshots',
+            DRAFT_PREFIX: 'computec_admin_draft_'
+        };
+
+        const ROLE_PERMISSIONS = {
+            superadmin: ['manage_news', 'manage_projects', 'manage_services', 'manage_gallery', 'delete_content', 'import_export', 'manage_security'],
+            editor: ['manage_news', 'manage_projects', 'manage_services', 'manage_gallery'],
+            moderador: ['manage_news', 'manage_services']
+        };
+
+        const FORM_DRAFT_KEYS = {
+            news: STORAGE_KEYS.DRAFT_PREFIX + 'news',
+            projects: STORAGE_KEYS.DRAFT_PREFIX + 'projects',
+            services: STORAGE_KEYS.DRAFT_PREFIX + 'services'
+        };
+
+        const filters = {
+            news: { query: '', status: 'all', sort: 'newest' },
+            projects: { query: '', category: 'all', status: 'all' },
+            services: { query: '', status: 'all' }
+        };
+
+        let hasChanges = false;
+        let inactivityTimer = null;
+        let sessionTimer = null;
+        let undoTimers = {};
+        let statsPollTimer = null;
+
+        function stopStatsPolling() {
+            if (statsPollTimer) {
+                clearInterval(statsPollTimer);
+                statsPollTimer = null;
+            }
+        }
+
+        function getSupabasePublicHeaders() {
+            const cfg = window.COMPUTEC_SUPABASE_PUBLIC;
+            if (!cfg || !cfg.url || !cfg.anonKey) {
+                return null;
+            }
+            return {
+                url: cfg.url.replace(/\/$/, ''),
+                headers: {
+                    'Content-Type': 'application/json',
+                    apikey: cfg.anonKey,
+                    Authorization: 'Bearer ' + cfg.anonKey
+                }
+            };
+        }
+
+        async function loadStatsDashboard() {
+            const pub = getSupabasePublicHeaders();
+            const msg = document.getElementById('stats-conn-msg');
+            const updated = document.getElementById('stats-updated-at');
+
+            if (!pub) {
+                if (msg) {
+                    msg.style.display = 'block';
+                    msg.textContent = 'No hay configuración de Supabase en esta sesión.';
+                }
+                return;
+            }
+
+            if (msg) {
+                msg.style.display = 'none';
+            }
+
+            try {
+                const sumRes = await fetch(pub.url + '/rest/v1/rpc/get_site_analytics_summary', {
+                    method: 'POST',
+                    headers: pub.headers,
+                    body: '{}'
+                });
+
+                if (!sumRes.ok) {
+                    throw new Error('RPC get_site_analytics_summary: ' + sumRes.status);
+                }
+
+                const summaryRaw = await sumRes.text();
+                let summary = {};
+                try {
+                    summary = JSON.parse(summaryRaw);
+                } catch (parseErr) {
+                    summary = {};
+                }
+
+                const setNum = (id, v) => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.textContent = typeof v === 'number' ? v.toLocaleString('es-PR') : String(v ?? '—');
+                    }
+                };
+
+                setNum('stats-kpi-today', summary.today_visits);
+                setNum('stats-kpi-yesterday', summary.yesterday_visits);
+                setNum('stats-kpi-7d', summary.last7_total);
+                setNum('stats-kpi-hour', summary.visits_last_hour);
+                setNum('stats-kpi-unique', summary.today_unique_visitors);
+
+                const dayRes = await fetch(
+                    pub.url + '/rest/v1/page_stats_daily?select=stat_date,visit_count,updated_at&order=stat_date.desc&limit=21',
+                    { headers: { apikey: pub.headers.apikey, Authorization: pub.headers.Authorization } }
+                );
+
+                if (!dayRes.ok) {
+                    throw new Error('GET page_stats_daily: ' + dayRes.status);
+                }
+
+                const rows = await dayRes.json();
+                renderStatsDailyTable(rows);
+                renderStatsBars(rows.slice(0, 7).reverse());
+
+                if (updated) {
+                    const t = new Date();
+                    updated.textContent = 'Actualizado: ' + t.toLocaleString('es-PR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                }
+            } catch (err) {
+                console.warn('Estadísticas:', err);
+                if (msg) {
+                    msg.style.display = 'block';
+                    msg.innerHTML = 'No se pudieron cargar las estadísticas. ¿Ejecutaste <code>database/page_analytics.sql</code> en Supabase? Comprueba la consola del navegador.';
+                }
+            }
+        }
+
+        function renderStatsDailyTable(rows) {
+            const tbody = document.getElementById('stats-table-body');
+            if (!tbody) {
+                return;
+            }
+
+            if (!Array.isArray(rows) || rows.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3">Sin datos aún. Visita la página pública para registrar la primera visita.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = rows.map(function (r) {
+                const d = r.stat_date || '—';
+                const c = typeof r.visit_count === 'number' ? r.visit_count.toLocaleString('es-PR') : r.visit_count;
+                let u = '—';
+                if (r.updated_at) {
+                    try {
+                        u = new Date(r.updated_at).toLocaleString('es-PR');
+                    } catch (e) {
+                        u = r.updated_at;
+                    }
+                }
+                return '<tr><td>' + d + '</td><td>' + c + '</td><td>' + u + '</td></tr>';
+            }).join('');
+        }
+
+        function renderStatsBars(rowsOldestFirst) {
+            const host = document.getElementById('stats-bars-host');
+            if (!host) {
+                return;
+            }
+
+            if (!Array.isArray(rowsOldestFirst) || rowsOldestFirst.length === 0) {
+                host.innerHTML = '<p style="color:#64748b;font-size:0.9rem;">Sin datos para la gráfica.</p>';
+                return;
+            }
+
+            const counts = rowsOldestFirst.map(function (r) {
+                return typeof r.visit_count === 'number' ? r.visit_count : 0;
+            });
+            const max = Math.max.apply(null, counts.concat([1]));
+
+            host.innerHTML = rowsOldestFirst.map(function (r, i) {
+                const h = Math.round((counts[i] / max) * 100);
+                const label = (r.stat_date || '').toString().slice(5);
+                return (
+                    '<div class="stats-bar-col">' +
+                    '<div class="stats-bar-inner"><div class="stats-bar" style="height:' + h + '%" title="' + counts[i] + ' visitas"></div></div>' +
+                    '<span class="stats-bar-label">' + label + '</span></div>'
+                );
+            }).join('');
+        }
+
+        function openTab(tabName, btn) {
+            stopStatsPolling();
+
+            const tab = document.getElementById('tab-' + tabName);
+            if (!tab) {
+                return;
+            }
+
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(button => button.classList.remove('active'));
+
+            tab.classList.add('active');
+            if (btn) {
+                btn.classList.add('active');
+            }
+
+            if (tabName === 'gallery') {
+                renderAdminGalleryList();
+            } else if (tabName === 'projects') {
+                renderProjectsList();
+            } else if (tabName === 'services') {
+                renderServicesList();
+            } else if (tabName === 'activity') {
+                renderActivityLog();
+            } else if (tabName === 'security') {
+                refreshSecurityStatus();
+            } else if (tabName === 'stats') {
+                loadStatsDashboard();
+                statsPollTimer = setInterval(loadStatsDashboard, 3000);
+            }
+        }
+
+        function setAdminAuthGateVisible(visible) {
+            const gate = document.getElementById('admin-auth-gate');
+            if (!gate) {
+                return;
+            }
+
+            gate.classList.toggle('active', visible);
+            gate.setAttribute('aria-hidden', visible ? 'false' : 'true');
+        }
+
+        function checkAuth() {
+            const authenticated = SessionManager.isAuthenticated();
+            setAdminAuthGateVisible(!authenticated);
+            return authenticated;
+        }
+
+        async function handleAdminPageLogin(event) {
+            event.preventDefault();
+
+            const usernameInput = document.getElementById('admin-auth-username');
+            const passwordInput = document.getElementById('admin-auth-password');
+            const errorBox = document.getElementById('admin-auth-error');
+
+            if (!usernameInput || !passwordInput || !errorBox) {
+                return;
+            }
+
+            errorBox.style.display = 'none';
+
+            try {
+                const result = await Authenticator.login(usernameInput.value, passwordInput.value);
+                if (!result.success) {
+                    errorBox.textContent = result.message || 'No se pudo iniciar sesión.';
+                    errorBox.style.display = 'block';
+                    return;
+                }
+
+                setAdminAuthGateVisible(false);
+                usernameInput.value = '';
+                passwordInput.value = '';
+                refreshSecurityStatus();
+                updateMetrics();
+                showNotification('Acceso administrativo concedido.', 'success');
+            } catch (error) {
+                console.error('Login del panel admin falló:', error);
+                errorBox.textContent = 'No se pudo validar el acceso administrativo. Intenta de nuevo.';
+                errorBox.style.display = 'block';
+            }
+        }
+
+        function getCurrentRole() {
+            if (!SessionManager.isAuthenticated()) {
+                return null;
+            }
+
+            const credentials = Authenticator.getCurrentCredentials ? Authenticator.getCurrentCredentials() : { role: 'superadmin' };
+            return credentials && ROLE_PERMISSIONS[credentials.role] ? credentials.role : null;
+        }
+
+        function hasPermission(permission) {
+            const role = getCurrentRole();
+            return !!(role && ROLE_PERMISSIONS[role] && ROLE_PERMISSIONS[role].includes(permission));
+        }
+
+        function requirePermission(permission, errorMessage) {
+            if (!hasPermission(permission)) {
+                showNotification(errorMessage || 'No tienes permiso para esta acción.', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        function getJson(key, fallback) {
+            try {
+                return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
+            } catch (error) {
+                return fallback;
+            }
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function toSafeId(value) {
+            const n = Number(value);
+            return Number.isFinite(n) ? Math.trunc(n) : 0;
+        }
+
+        function setJson(key, value) {
+            localStorage.setItem(key, JSON.stringify(value));
+        }
+
+        function getNews() {
+            return getJson(STORAGE_KEYS.NEWS, []);
+        }
+
+        function saveNews(news, reason = 'actualizacion noticias') {
+            setJson(STORAGE_KEYS.NEWS, news);
+            createSnapshot(reason);
+            logActivity('noticias', reason, 'ok');
+            clearFormChanges();
+            updateMetrics();
+        }
+
+        function getProjects() {
+            return getJson(STORAGE_KEYS.PROJECTS, []);
+        }
+
+        function saveProjects(projects, reason = 'actualizacion proyectos') {
+            setJson(STORAGE_KEYS.PROJECTS, projects);
+            createSnapshot(reason);
+            logActivity('proyectos', reason, 'ok');
+            clearFormChanges();
+            updateMetrics();
+        }
+
+        function getServices() {
+            return getJson(STORAGE_KEYS.SERVICES, []);
+        }
+
+        function saveServices(services, reason = 'actualizacion servicios') {
+            setJson(STORAGE_KEYS.SERVICES, services);
+            createSnapshot(reason);
+            logActivity('servicios', reason, 'ok');
+            clearFormChanges();
+            updateMetrics();
+        }
+
+        function getGalleryImages() {
+            return getJson(STORAGE_KEYS.GALLERY, []);
+        }
+
+        function saveGalleryImages(images, reason = 'actualizacion galeria') {
+            setJson(STORAGE_KEYS.GALLERY, images);
+            createSnapshot(reason);
+            logActivity('galeria', reason, 'ok');
+            updateMetrics();
+        }
+
+        function getGallerySettings() {
+            return getJson(STORAGE_KEYS.GALLERY_SETTINGS, { transitionTime: 5000 });
+        }
+
+        function initializeGallery() {
+            const settings = getGallerySettings();
+            const transitionEl = document.getElementById('gallery-transition-time');
+            if (transitionEl) {
+                transitionEl.value = settings.transitionTime || 5000;
+            }
+        }
+
+        function saveGalleryTransitionTime() {
+            if (!requirePermission('manage_gallery', 'Tu rol no puede editar la galería.')) {
+                return;
+            }
+
+            const transitionEl = document.getElementById('gallery-transition-time');
+            if (!transitionEl) {
+                return;
+            }
+            const value = parseInt(transitionEl.value, 10);
+            if (Number.isNaN(value) || value < 2000 || value > 15000) {
+                showNotification('El tiempo debe estar entre 2000 y 15000 ms.', 'error');
+                return;
+            }
+
+            setJson(STORAGE_KEYS.GALLERY_SETTINGS, { transitionTime: value });
+            createSnapshot('ajuste galeria');
+            logActivity('galeria', 'cambio tiempo de transicion', value + ' ms');
+            showNotification('Tiempo de transición guardado.', 'success');
+        }
+
+        function compressImageFile(file, maxWidth = 1600, quality = 0.82) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = event => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const scale = Math.min(1, maxWidth / img.width);
+                        const canvas = document.createElement('canvas');
+                        canvas.width = Math.round(img.width * scale);
+                        canvas.height = Math.round(img.height * scale);
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.onerror = () => reject(new Error('No se pudo procesar una imagen.'));
+                    img.src = event.target.result;
+                };
+                reader.onerror = () => reject(new Error('Error leyendo archivo de imagen.'));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function handleImageUpload(event) {
+            if (!requirePermission('manage_gallery', 'Tu rol no puede subir imágenes.')) {
+                return;
+            }
+
+            const files = Array.from(event.target.files || []);
+            if (!files.length) {
+                return;
+            }
+
+            const images = getGalleryImages();
+            if (images.length + files.length > 20) {
+                showNotification('Máximo 20 imágenes en la galería.', 'error');
+                event.target.value = '';
+                return;
+            }
+
+            for (const file of files) {
+                if (file.size > 10 * 1024 * 1024) {
+                    showNotification('Una imagen excede 10MB. No se agregó.', 'error');
+                    continue;
+                }
+
+                try {
+                    const dataUrl = await compressImageFile(file);
+                    images.push({
+                        id: Date.now() + Math.floor(Math.random() * 1000),
+                        title: file.name.replace(/\.[^/.]+$/, ''),
+                        description: '',
+                        src: dataUrl,
+                        createdAt: new Date().toISOString()
+                    });
+                } catch (error) {
+                    showNotification(error.message, 'error');
+                }
+            }
+
+            saveGalleryImages(images, 'subida de imagenes');
+            renderAdminGalleryList();
+            showNotification('Imágenes procesadas y guardadas.', 'success');
+            event.target.value = '';
+        }
+
+        function moveGalleryItem(id, direction) {
+            if (!requirePermission('manage_gallery', 'Tu rol no puede ordenar imágenes.')) {
+                return;
+            }
+
+            const images = getGalleryImages();
+            const index = images.findIndex(item => item.id === id);
+            if (index === -1) {
+                return;
+            }
+
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= images.length) {
+                return;
+            }
+
+            [images[index], images[newIndex]] = [images[newIndex], images[index]];
+            saveGalleryImages(images, 'orden de galeria');
+            renderAdminGalleryList();
+        }
+
+        function updateGalleryItem(id, field, value) {
+            if (!requirePermission('manage_gallery', 'Tu rol no puede editar imágenes de galería.')) {
+                return;
+            }
+
+            const images = getGalleryImages();
+            const index = images.findIndex(item => item.id === id);
+            if (index === -1) {
+                return;
+            }
+
+            images[index][field] = value;
+            saveGalleryImages(images, 'edicion datos imagen');
+        }
+
+        function deleteGalleryImage(id) {
+            if (!requirePermission('delete_content', 'Tu rol no puede eliminar imágenes.')) {
+                return;
+            }
+
+            const images = getGalleryImages();
+            const deleted = images.find(item => item.id === id);
+            if (!deleted) {
+                return;
+            }
+
+            const remaining = images.filter(item => item.id !== id);
+            saveGalleryImages(remaining, 'eliminar imagen');
+            renderAdminGalleryList();
+            showUndoNotification('Imagen eliminada.', 'gallery', deleted);
+        }
+
+        function renderAdminGalleryList() {
+            const container = document.getElementById('admin-gallery-list');
+            const images = getGalleryImages();
+            if (!images.length) {
+                container.innerHTML = '<p class="empty-message">No hay imágenes en la galería.</p>';
+                return;
+            }
+
+            container.innerHTML = images.map((item, index) => {
+                const safeId = toSafeId(item.id);
+                return `
+                <div class="gallery-image-item">
+                    <div class="image-preview">
+                        <img src="${escapeHtml(item.src || '')}" alt="${escapeHtml(item.title || 'Imagen')}">
+                    </div>
+                    <div class="image-details">
+                        <input type="text" maxlength="120" value="${escapeHtml(item.title || '')}" placeholder="Título" oninput="updateGalleryItem(${safeId}, 'title', this.value)">
+                        <textarea maxlength="300" placeholder="Descripción" oninput="updateGalleryItem(${safeId}, 'description', this.value)">${escapeHtml(item.description || '')}</textarea>
+                    </div>
+                    <div class="image-actions">
+                        <button class="btn btn-move-up" onclick="moveGalleryItem(${safeId}, -1)" ${index === 0 ? 'disabled' : ''}><i class="fa-solid fa-arrow-up"></i></button>
+                        <button class="btn btn-move-down" onclick="moveGalleryItem(${safeId}, 1)" ${index === images.length - 1 ? 'disabled' : ''}><i class="fa-solid fa-arrow-down"></i></button>
+                        <button class="btn btn-delete-image" onclick="deleteGalleryImage(${safeId})"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        function previewGallery() {
+            window.open('index.html#galeria', '_blank');
+        }
+
+        function getStatusBadge(status) {
+            const normalized = (status || 'published').toLowerCase();
+            const color = normalized === 'published' || normalized === 'active'
+                ? '#16a34a'
+                : normalized === 'scheduled'
+                    ? '#0ea5e9'
+                    : '#64748b';
+            const label = normalized === 'published'
+                ? 'Publicado'
+                : normalized === 'draft'
+                    ? 'Borrador'
+                    : normalized === 'scheduled'
+                        ? 'Programado'
+                        : normalized === 'active'
+                            ? 'Activo'
+                            : normalized === 'inactive'
+                                ? 'Inactivo'
+                                : status;
+                return `<span style="background:${color};color:white;padding:2px 8px;border-radius:999px;font-size:0.75rem;font-weight:600;">${escapeHtml(label)}</span>`;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            if (Number.isNaN(date.getTime())) {
+                return dateString || '-';
+            }
+            return date.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            if (Number.isNaN(date.getTime())) {
+                return '-';
+            }
+            return date.toLocaleString('es-ES', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function runScheduledPublication() {
+            if (!SessionManager.isAuthenticated() || !hasPermission('manage_news')) {
+                return;
+            }
+
+            const now = Date.now();
+            const news = getNews();
+            let touched = false;
+
+            news.forEach(item => {
+                if ((item.status || 'published') === 'scheduled' && item.publishAt) {
+                    const publishTime = new Date(item.publishAt).getTime();
+                    if (!Number.isNaN(publishTime) && publishTime <= now) {
+                        item.status = 'published';
+                        touched = true;
+                    }
+                }
+            });
+
+            if (touched) {
+                saveNews(news, 'publicacion programada');
+                renderNewsList();
+            }
+        }
+
+        function renderNewsList() {
+            const newsList = document.getElementById('admin-news-list');
+            const list = getNews()
+                .slice()
+                .filter(item => {
+                    const q = filters.news.query.toLowerCase();
+                    const title = (item.title || '').toLowerCase();
+                    const content = (item.content || '').toLowerCase();
+                    const queryMatch = !q || title.includes(q) || content.includes(q);
+                    const status = item.status || 'published';
+                    const statusMatch = filters.news.status === 'all' || status === filters.news.status;
+                    return queryMatch && statusMatch;
+                })
+                .sort((a, b) => {
+                    if (filters.news.sort === 'oldest') {
+                        return new Date(a.date) - new Date(b.date);
+                    }
+                    return new Date(b.date) - new Date(a.date);
+                });
+
+            if (!list.length) {
+                newsList.innerHTML = '<p class="empty-message">No hay resultados para el filtro aplicado.</p>';
+                return;
+            }
+
+            newsList.innerHTML = list.map(item => {
+                const safeId = toSafeId(item.id);
+                const scheduledLabel = (item.status === 'scheduled' && item.publishAt)
+                    ? '<span style="margin-left:0.4rem;">' + escapeHtml(formatDateTime(item.publishAt)) + '</span>'
+                    : '';
+                return `
+                <div class="news-item">
+                    <div class="news-info">
+                        <h4>${escapeHtml(item.title)}</h4>
+                        <span>${escapeHtml(formatDate(item.date))} ${item.featured ? '<span class="badge-featured" style="margin-left:0.4rem;">Destacado</span>' : ''} ${getStatusBadge(item.status || 'published')} ${scheduledLabel}</span>
+                    </div>
+                    <div class="news-actions">
+                        <button class="btn-edit" onclick="previewNews(${safeId})"><i class="fa-solid fa-eye"></i> Ver</button>
+                        <button class="btn-edit" onclick="editNews(${safeId})"><i class="fa-solid fa-edit"></i> Editar</button>
+                        ${hasPermission('delete_content') ? `<button class="btn-delete" onclick="deleteNews(${safeId})"><i class="fa-solid fa-trash"></i> Eliminar</button>` : ''}
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        function validateNewsPayload(payload) {
+            if (!payload.title || payload.title.trim().length < 6 || payload.title.trim().length > 120) {
+                return 'El título debe tener entre 6 y 120 caracteres.';
+            }
+            if (!payload.date) {
+                return 'La fecha es obligatoria.';
+            }
+            if (!payload.content || payload.content.trim().length < 20 || payload.content.trim().length > 2500) {
+                return 'El contenido debe tener entre 20 y 2500 caracteres.';
+            }
+            if (payload.status === 'scheduled' && !payload.publishAt) {
+                return 'Para estado programado debes indicar fecha y hora de publicación.';
+            }
+            return '';
+        }
+
+        document.getElementById('news-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!requirePermission('manage_news', 'Tu rol no puede guardar noticias.')) {
+                return;
+            }
+
+            const id = document.getElementById('news-id').value;
+            const payload = {
+                id: id ? parseInt(id, 10) : null,
+                title: document.getElementById('news-title').value.trim(),
+                date: document.getElementById('news-date').value,
+                content: document.getElementById('news-content').value.trim(),
+                featured: document.getElementById('news-featured').checked,
+                status: document.getElementById('news-status') ? document.getElementById('news-status').value : 'published',
+                publishAt: document.getElementById('news-publish-at') ? document.getElementById('news-publish-at').value : ''
+            };
+
+            const error = validateNewsPayload(payload);
+            if (error) {
+                showNotification(error, 'error');
+                return;
+            }
+
+            const news = getNews();
+            if (payload.id) {
+                const index = news.findIndex(item => item.id === payload.id);
+                if (index !== -1) {
+                    news[index] = payload;
+                }
+            } else {
+                payload.id = news.length ? Math.max(...news.map(item => item.id || 0)) + 1 : 1;
+                news.push(payload);
+            }
+
+            saveNews(news, payload.id ? 'guardar noticia' : 'crear noticia');
+            renderNewsList();
+            resetForm();
+            clearFormDraft('news');
+            showNotification('Noticia guardada correctamente.', 'success');
+        });
+
+        function editNews(id) {
+            const item = getNews().find(newsItem => newsItem.id === id);
+            if (!item) {
+                return;
+            }
+
+            document.getElementById('news-id').value = item.id;
+            document.getElementById('news-title').value = item.title || '';
+            document.getElementById('news-date').value = item.date || '';
+            document.getElementById('news-content').value = item.content || '';
+            document.getElementById('news-featured').checked = !!item.featured;
+            if (document.getElementById('news-status')) {
+                document.getElementById('news-status').value = item.status || 'published';
+            }
+            if (document.getElementById('news-publish-at')) {
+                document.getElementById('news-publish-at').value = item.publishAt || '';
+            }
+
+            document.getElementById('form-title').textContent = 'Editar Noticia';
+            document.getElementById('cancel-edit').style.display = 'inline-block';
+            updateCharCounter();
+            document.getElementById('news-form-section').scrollIntoView({ behavior: 'smooth' });
+            trackChanges();
+        }
+
+        function deleteNews(id) {
+            if (!requirePermission('delete_content', 'Tu rol no puede eliminar noticias.')) {
+                return;
+            }
+
+            const news = getNews();
+            const removed = news.find(item => item.id === id);
+            if (!removed || !confirm('Confirmar eliminación de la noticia seleccionada.')) {
+                return;
+            }
+
+            saveNews(news.filter(item => item.id !== id), 'eliminar noticia');
+            renderNewsList();
+            showUndoNotification('Noticia eliminada.', 'news', removed);
+        }
+
+        function resetForm() {
+            document.getElementById('news-form').reset();
+            document.getElementById('news-id').value = '';
+            document.getElementById('form-title').textContent = 'Agregar Nueva Noticia';
+            document.getElementById('cancel-edit').style.display = 'none';
+            updateCharCounter();
+            clearFormChanges();
+        }
+
+        function previewNews(id) {
+            const item = getNews().find(newsItem => newsItem.id === id);
+            if (!item) {
+                return;
+            }
+
+            document.getElementById('preview-news-title').textContent = item.title || '';
+            document.getElementById('preview-news-date').textContent = formatDate(item.date);
+            document.getElementById('preview-news-featured').style.display = item.featured ? 'inline-block' : 'none';
+            document.getElementById('preview-news-content').textContent = item.content || '';
+            document.getElementById('news-preview-modal').classList.add('active');
+        }
+
+        function closeNewsPreview() {
+            document.getElementById('news-preview-modal').classList.remove('active');
+        }
+
+        document.getElementById('news-content').addEventListener('input', updateCharCounter);
+        function updateCharCounter() {
+            const content = document.getElementById('news-content').value;
+            document.getElementById('char-counter').textContent = content.length + ' caracteres';
+        }
+
+        function renderProjectsList() {
+            const projectsList = document.getElementById('admin-projects-list');
+            const projects = getProjects().filter(item => {
+                const q = filters.projects.query.toLowerCase();
+                const queryMatch = !q || (item.title || '').toLowerCase().includes(q) || (item.student || '').toLowerCase().includes(q);
+                const categoryMatch = filters.projects.category === 'all' || item.category === filters.projects.category;
+                const status = item.status || 'published';
+                const statusMatch = filters.projects.status === 'all' || status === filters.projects.status;
+                return queryMatch && categoryMatch && statusMatch;
+            });
+
+            if (!projects.length) {
+                projectsList.innerHTML = '<p class="empty-message">No hay proyectos para ese filtro.</p>';
+                return;
+            }
+
+            projectsList.innerHTML = projects.map(item => {
+                const safeId = toSafeId(item.id);
+                return `
+                <div class="news-item">
+                    <div class="news-info">
+                        <h4>${escapeHtml(item.title)}</h4>
+                        <span><strong>${escapeHtml(item.student)}</strong> • ${escapeHtml(item.category)} • ${escapeHtml(item.year)} ${getStatusBadge(item.status || 'published')}</span>
+                    </div>
+                    <div class="news-actions">
+                        <button class="btn-edit" onclick="editProject(${safeId})"><i class="fa-solid fa-edit"></i> Editar</button>
+                        ${hasPermission('delete_content') ? `<button class="btn-delete" onclick="deleteProject(${safeId})"><i class="fa-solid fa-trash"></i> Eliminar</button>` : ''}
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        function validateProjectPayload(payload) {
+            if (!payload.title || payload.title.trim().length < 4 || payload.title.trim().length > 120) {
+                return 'El título del proyecto debe tener entre 4 y 120 caracteres.';
+            }
+            if (!payload.student || payload.student.trim().length < 3 || payload.student.trim().length > 120) {
+                return 'El nombre de estudiante/equipo no es válido.';
+            }
+            if (!/^\d{4}$/.test(payload.year)) {
+                return 'El año debe tener 4 dígitos.';
+            }
+            if ((payload.description || '').length > 800) {
+                return 'La descripción del proyecto excede 800 caracteres.';
+            }
+            return '';
+        }
+
+        document.getElementById('project-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!requirePermission('manage_projects', 'Tu rol no puede guardar proyectos.')) {
+                return;
+            }
+
+            const id = document.getElementById('project-id').value;
+            const payload = {
+                id: id ? parseInt(id, 10) : null,
+                title: document.getElementById('project-title').value.trim(),
+                student: document.getElementById('project-student').value.trim(),
+                year: document.getElementById('project-year').value.trim(),
+                category: document.getElementById('project-category').value,
+                description: document.getElementById('project-description').value.trim(),
+                status: document.getElementById('project-status') ? document.getElementById('project-status').value : 'published'
+            };
+
+            const error = validateProjectPayload(payload);
+            if (error) {
+                showNotification(error, 'error');
+                return;
+            }
+
+            const projects = getProjects();
+            if (payload.id) {
+                const index = projects.findIndex(item => item.id === payload.id);
+                if (index !== -1) {
+                    projects[index] = payload;
+                }
+            } else {
+                payload.id = projects.length ? Math.max(...projects.map(item => item.id || 0)) + 1 : 1;
+                projects.push(payload);
+            }
+
+            saveProjects(projects, payload.id ? 'guardar proyecto' : 'crear proyecto');
+            renderProjectsList();
+            resetProjectForm();
+            clearFormDraft('projects');
+            showNotification('Proyecto guardado.', 'success');
+        });
+
+        function editProject(id) {
+            const item = getProjects().find(project => project.id === id);
+            if (!item) {
+                return;
+            }
+
+            document.getElementById('project-id').value = item.id;
+            document.getElementById('project-title').value = item.title || '';
+            document.getElementById('project-student').value = item.student || '';
+            document.getElementById('project-year').value = item.year || '';
+            document.getElementById('project-category').value = item.category || 'Otro';
+            document.getElementById('project-description').value = item.description || '';
+            if (document.getElementById('project-status')) {
+                document.getElementById('project-status').value = item.status || 'published';
+            }
+
+            document.getElementById('project-form-title').textContent = 'Editar Proyecto';
+            document.getElementById('cancel-project-edit').style.display = 'inline-block';
+            trackChanges();
+        }
+
+        function deleteProject(id) {
+            if (!requirePermission('delete_content', 'Tu rol no puede eliminar proyectos.')) {
+                return;
+            }
+
+            const projects = getProjects();
+            const removed = projects.find(item => item.id === id);
+            if (!removed || !confirm('Confirmar eliminación del proyecto.')) {
+                return;
+            }
+
+            saveProjects(projects.filter(item => item.id !== id), 'eliminar proyecto');
+            renderProjectsList();
+            showUndoNotification('Proyecto eliminado.', 'projects', removed);
+        }
+
+        function resetProjectForm() {
+            document.getElementById('project-form').reset();
+            document.getElementById('project-id').value = '';
+            document.getElementById('project-form-title').textContent = 'Agregar Proyecto';
+            document.getElementById('cancel-project-edit').style.display = 'none';
+            clearFormChanges();
+        }
+
+        function renderServicesList() {
+            const servicesList = document.getElementById('admin-services-list');
+            const services = getServices().filter(item => {
+                const q = filters.services.query.toLowerCase();
+                const queryMatch = !q || (item.name || '').toLowerCase().includes(q) || (item.description || '').toLowerCase().includes(q);
+                const status = item.status || (item.available ? 'active' : 'inactive');
+                const statusMatch = filters.services.status === 'all' || status === filters.services.status;
+                return queryMatch && statusMatch;
+            });
+
+            if (!services.length) {
+                servicesList.innerHTML = '<p class="empty-message">No hay servicios para ese filtro.</p>';
+                return;
+            }
+
+            servicesList.innerHTML = services.map(item => {
+                const safeId = toSafeId(item.id);
+                const status = item.status || (item.available ? 'active' : 'inactive');
+                return `
+                <div class="news-item">
+                    <div class="news-info">
+                        <h4>${escapeHtml(item.name)} ${getStatusBadge(status)}</h4>
+                        <span>${escapeHtml(item.description || 'Sin descripción')}</span>
+                    </div>
+                    <div class="news-actions">
+                        <button class="btn-edit" onclick="editService(${safeId})"><i class="fa-solid fa-edit"></i> Editar</button>
+                        ${hasPermission('delete_content') ? `<button class="btn-delete" onclick="deleteService(${safeId})"><i class="fa-solid fa-trash"></i> Eliminar</button>` : ''}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function validateServicePayload(payload) {
+            if (!payload.name || payload.name.trim().length < 4 || payload.name.trim().length > 100) {
+                return 'El nombre del servicio debe tener entre 4 y 100 caracteres.';
+            }
+            if ((payload.description || '').length > 500) {
+                return 'La descripción del servicio excede 500 caracteres.';
+            }
+            return '';
+        }
+
+        document.getElementById('service-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!requirePermission('manage_services', 'Tu rol no puede guardar servicios.')) {
+                return;
+            }
+
+            const id = document.getElementById('service-id').value;
+            const available = document.getElementById('service-available').checked;
+            const payload = {
+                id: id ? parseInt(id, 10) : null,
+                name: document.getElementById('service-name').value.trim(),
+                description: document.getElementById('service-description').value.trim(),
+                available: available,
+                status: document.getElementById('service-status') ? document.getElementById('service-status').value : (available ? 'active' : 'inactive')
+            };
+
+            const error = validateServicePayload(payload);
+            if (error) {
+                showNotification(error, 'error');
+                return;
+            }
+
+            const services = getServices();
+            if (payload.id) {
+                const index = services.findIndex(item => item.id === payload.id);
+                if (index !== -1) {
+                    services[index] = payload;
+                }
+            } else {
+                payload.id = services.length ? Math.max(...services.map(item => item.id || 0)) + 1 : 1;
+                services.push(payload);
+            }
+
+            saveServices(services, payload.id ? 'guardar servicio' : 'crear servicio');
+            renderServicesList();
+            resetServiceForm();
+            clearFormDraft('services');
+            showNotification('Servicio guardado.', 'success');
+        });
+
+        function editService(id) {
+            const item = getServices().find(service => service.id === id);
+            if (!item) {
+                return;
+            }
+
+            document.getElementById('service-id').value = item.id;
+            document.getElementById('service-name').value = item.name || '';
+            document.getElementById('service-description').value = item.description || '';
+            document.getElementById('service-available').checked = !!item.available;
+            if (document.getElementById('service-status')) {
+                document.getElementById('service-status').value = item.status || (item.available ? 'active' : 'inactive');
+            }
+
+            document.getElementById('service-form-title').textContent = 'Editar Servicio';
+            document.getElementById('cancel-service-edit').style.display = 'inline-block';
+            trackChanges();
+        }
+
+        function deleteService(id) {
+            if (!requirePermission('delete_content', 'Tu rol no puede eliminar servicios.')) {
+                return;
+            }
+
+            const services = getServices();
+            const removed = services.find(item => item.id === id);
+            if (!removed || !confirm('Confirmar eliminación del servicio.')) {
+                return;
+            }
+
+            saveServices(services.filter(item => item.id !== id), 'eliminar servicio');
+            renderServicesList();
+            showUndoNotification('Servicio eliminado.', 'services', removed);
+        }
+
+        function resetServiceForm() {
+            document.getElementById('service-form').reset();
+            document.getElementById('service-id').value = '';
+            document.getElementById('service-form-title').textContent = 'Agregar Servicio Técnico';
+            document.getElementById('cancel-service-edit').style.display = 'none';
+            clearFormChanges();
+        }
+
+        function trackChanges() {
+            hasChanges = true;
+            document.getElementById('unsaved-banner').style.display = 'flex';
+        }
+
+        function clearFormChanges() {
+            hasChanges = false;
+            document.getElementById('unsaved-banner').style.display = 'none';
+        }
+
+        function debounce(fn, delay) {
+            let timer;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn(...args), delay);
+            };
+        }
+
+        function saveFormDraft(formName, formElement) {
+            const fields = Array.from(formElement.querySelectorAll('input, textarea, select')).reduce((acc, field) => {
+                if (!field.id) {
+                    return acc;
+                }
+                acc[field.id] = field.type === 'checkbox' ? field.checked : field.value;
+                return acc;
+            }, {});
+            localStorage.setItem(FORM_DRAFT_KEYS[formName], JSON.stringify(fields));
+        }
+
+        function restoreFormDraft(formName, formElement) {
+            const draft = getJson(FORM_DRAFT_KEYS[formName], null);
+            if (!draft) {
+                return;
+            }
+
+            Object.keys(draft).forEach(key => {
+                const field = formElement.querySelector('#' + key);
+                if (!field) {
+                    return;
+                }
+                if (field.type === 'checkbox') {
+                    field.checked = !!draft[key];
+                } else {
+                    field.value = draft[key];
+                }
+            });
+        }
+
+        function clearFormDraft(formName) {
+            localStorage.removeItem(FORM_DRAFT_KEYS[formName]);
+        }
+
+        function showUndoNotification(message, entity, payload) {
+            const toast = showNotification(message + ' Deshacer disponible por 10 segundos.', 'info', 10000, {
+                label: 'Deshacer',
+                onClick: () => {
+                    clearTimeout(undoTimers[entity]);
+                    delete undoTimers[entity];
+                    restoreDeletedEntity(entity, payload);
+                }
+            });
+
+            undoTimers[entity] = setTimeout(() => {
+                if (toast && toast.parentNode) {
+                    toast.remove();
+                }
+                delete undoTimers[entity];
+            }, 10000);
+        }
+
+        function restoreDeletedEntity(entity, payload) {
+            if (entity === 'news') {
+                const items = getNews();
+                items.push(payload);
+                saveNews(items, 'restaurar noticia');
+                renderNewsList();
+            } else if (entity === 'projects') {
+                const items = getProjects();
+                items.push(payload);
+                saveProjects(items, 'restaurar proyecto');
+                renderProjectsList();
+            } else if (entity === 'services') {
+                const items = getServices();
+                items.push(payload);
+                saveServices(items, 'restaurar servicio');
+                renderServicesList();
+            } else if (entity === 'gallery') {
+                const items = getGalleryImages();
+                items.push(payload);
+                saveGalleryImages(items, 'restaurar imagen');
+                renderAdminGalleryList();
+            }
+
+            showNotification('Elemento restaurado.', 'success');
+        }
+
+        function getActivityLog() {
+            return getJson(STORAGE_KEYS.ACTIVITY, []);
+        }
+
+        function logActivity(area, action, detail) {
+            const info = SessionManager.getSessionInfo() || { username: 'Admin' };
+            const log = getActivityLog();
+            log.unshift({
+                at: new Date().toISOString(),
+                area,
+                action,
+                detail,
+                user: info.username,
+                role: getCurrentRole()
+            });
+
+            setJson(STORAGE_KEYS.ACTIVITY, log.slice(0, 200));
+            renderActivityLog();
+        }
+
+        function renderActivityLog() {
+            const container = document.getElementById('activity-log-list');
+            if (!container) {
+                return;
+            }
+
+            const rows = getActivityLog();
+            if (!rows.length) {
+                container.innerHTML = '<p class="empty-message">No hay actividad registrada todavía.</p>';
+                return;
+            }
+
+            container.innerHTML = rows.map(row => `
+                <div class="news-item">
+                    <div class="news-info">
+                        <h4>${escapeHtml(String(row.area || '').toUpperCase())} - ${escapeHtml(row.action)}</h4>
+                        <span>${escapeHtml(formatDateTime(row.at))} • ${escapeHtml(row.user)} • ${escapeHtml(row.role)}${row.detail ? ' • ' + escapeHtml(row.detail) : ''}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getSnapshots() {
+            return getJson(STORAGE_KEYS.SNAPSHOTS, []);
+        }
+
+        function createSnapshot(reason) {
+            const snapshots = getSnapshots();
+            snapshots.unshift({
+                id: Date.now() + Math.floor(Math.random() * 1000),
+                at: new Date().toISOString(),
+                reason,
+                payload: {
+                    news: getNews(),
+                    projects: getProjects(),
+                    services: getServices(),
+                    gallery: getGalleryImages(),
+                    gallerySettings: getGallerySettings()
+                }
+            });
+
+            setJson(STORAGE_KEYS.SNAPSHOTS, snapshots.slice(0, 15));
+            renderSnapshotList();
+        }
+
+        function renderSnapshotList() {
+            const container = document.getElementById('snapshot-list');
+            if (!container) {
+                return;
+            }
+
+            const snapshots = getSnapshots();
+            if (!snapshots.length) {
+                container.innerHTML = '<p class="empty-message">Aún no hay respaldos automáticos.</p>';
+                return;
+            }
+
+            container.innerHTML = snapshots.map(item => {
+                const safeId = toSafeId(item.id);
+                return `
+                <div class="news-item">
+                    <div class="news-info">
+                        <h4>${escapeHtml(item.reason)}</h4>
+                        <span>${escapeHtml(formatDateTime(item.at))}</span>
+                    </div>
+                    <div class="news-actions">
+                        <button class="btn-edit" onclick="restoreSnapshot(${safeId})"><i class="fa-solid fa-rotate-left"></i> Restaurar</button>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        function restoreSnapshot(id) {
+            if (!requirePermission('manage_security', 'Solo superadmin puede restaurar respaldos.')) {
+                return;
+            }
+
+            const snapshot = getSnapshots().find(item => item.id === id);
+            if (!snapshot) {
+                return;
+            }
+
+            if (!confirm('Restaurar este respaldo reemplazará los datos actuales.')) {
+                return;
+            }
+
+            setJson(STORAGE_KEYS.NEWS, snapshot.payload.news || []);
+            setJson(STORAGE_KEYS.PROJECTS, snapshot.payload.projects || []);
+            setJson(STORAGE_KEYS.SERVICES, snapshot.payload.services || []);
+            setJson(STORAGE_KEYS.GALLERY, snapshot.payload.gallery || []);
+            setJson(STORAGE_KEYS.GALLERY_SETTINGS, snapshot.payload.gallerySettings || { transitionTime: 5000 });
+
+            logActivity('seguridad', 'restaurar respaldo', snapshot.reason);
+            renderNewsList();
+            renderProjectsList();
+            renderServicesList();
+            renderAdminGalleryList();
+            initializeGallery();
+            updateMetrics();
+            showNotification('Respaldo restaurado.', 'success');
+        }
+
+        function exportData() {
+            if (!requirePermission('import_export', 'Tu rol no puede exportar datos.')) {
+                return;
+            }
+
+            const data = {
+                news: getNews(),
+                projects: getProjects(),
+                services: getServices(),
+                gallery: getGalleryImages(),
+                gallerySettings: getGallerySettings(),
+                snapshots: getSnapshots(),
+                activity: getActivityLog(),
+                exportDate: new Date().toISOString()
+            };
+
+            const dataStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'computec-admin-backup-' + new Date().toISOString().split('T')[0] + '.json';
+            link.click();
+            URL.revokeObjectURL(url);
+
+            logActivity('seguridad', 'exportar datos', 'json');
+            showNotification('Datos exportados correctamente.', 'success');
+        }
+
+        function importData() {
+            if (!requirePermission('import_export', 'Tu rol no puede importar datos.')) {
+                return;
+            }
+
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) {
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        if (data.news) setJson(STORAGE_KEYS.NEWS, data.news);
+                        if (data.projects) setJson(STORAGE_KEYS.PROJECTS, data.projects);
+                        if (data.services) setJson(STORAGE_KEYS.SERVICES, data.services);
+                        if (data.gallery) setJson(STORAGE_KEYS.GALLERY, data.gallery);
+                        if (data.gallerySettings) setJson(STORAGE_KEYS.GALLERY_SETTINGS, data.gallerySettings);
+                        if (data.snapshots) setJson(STORAGE_KEYS.SNAPSHOTS, data.snapshots);
+                        if (data.activity) setJson(STORAGE_KEYS.ACTIVITY, data.activity);
+
+                        renderNewsList();
+                        renderProjectsList();
+                        renderServicesList();
+                        renderAdminGalleryList();
+                        renderActivityLog();
+                        renderSnapshotList();
+                        initializeGallery();
+                        updateMetrics();
+                        logActivity('seguridad', 'importar datos', file.name);
+                        showNotification('Datos importados correctamente.', 'success');
+                    } catch (error) {
+                        showNotification('Error al importar: ' + error.message, 'error');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        function showNotification(message, type = 'info', duration = 3200, action = null) {
+            const banner = document.createElement('div');
+            banner.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                padding: 12px 14px;
+                border-radius: 10px;
+                background: ${type === 'success' ? '#22c55e' : type === 'error' ? '#dc2626' : '#0ea5e9'};
+                color: white;
+                font-weight: 600;
+                z-index: 10000;
+                box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+                display:flex;
+                align-items:center;
+                gap:10px;
+                max-width: 430px;
+            `;
+
+            const text = document.createElement('span');
+            text.textContent = message;
+            banner.appendChild(text);
+
+            if (action && action.label && typeof action.onClick === 'function') {
+                const actionBtn = document.createElement('button');
+                actionBtn.textContent = action.label;
+                actionBtn.style.cssText = 'background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.5);padding:5px 10px;border-radius:6px;cursor:pointer;';
+                actionBtn.onclick = function() {
+                    action.onClick();
+                    banner.remove();
+                };
+                banner.appendChild(actionBtn);
+            }
+
+            document.body.appendChild(banner);
+            if (duration > 0) {
+                setTimeout(() => {
+                    if (banner.parentNode) {
+                        banner.remove();
+                    }
+                }, duration);
+            }
+            return banner;
+        }
+
+        function logout() {
+            Authenticator.logout();
+            setAdminAuthGateVisible(true);
+            showNotification('Sesión cerrada.', 'info');
+        }
+
+        function lockAdminAndGoHome(event) {
+            if (event) {
+                event.preventDefault();
+            }
+
+            try {
+                sessionStorage.setItem('computec_lock_admin_on_home', '1');
+            } catch (error) {
+                console.warn('No se pudo marcar el bloqueo al volver al inicio.', error);
+            }
+
+            Authenticator.logout();
+            window.location.href = 'index.html';
+            return false;
+        }
+
+        function updateMetrics() {
+            const metricsContainer = document.getElementById('metrics-grid');
+            if (!metricsContainer) {
+                return;
+            }
+
+            const news = getNews();
+            const projects = getProjects();
+            const services = getServices();
+            const publishedNews = news.filter(item => (item.status || 'published') === 'published').length;
+            const activeServices = services.filter(item => (item.status || (item.available ? 'active' : 'inactive')) === 'active').length;
+            const lastActivity = getActivityLog()[0];
+
+            metricsContainer.innerHTML = `
+                <div class="news-item"><div class="news-info"><h4>${news.length}</h4><span>Noticias (${publishedNews} publicadas)</span></div></div>
+                <div class="news-item"><div class="news-info"><h4>${projects.length}</h4><span>Proyectos registrados</span></div></div>
+                <div class="news-item"><div class="news-info"><h4>${services.length}</h4><span>Servicios (${activeServices} activos)</span></div></div>
+                <div class="news-item"><div class="news-info"><h4>${getGalleryImages().length}</h4><span>Imágenes en galería</span></div></div>
+                <div class="news-item"><div class="news-info"><h4>${getSnapshots().length}</h4><span>Respaldos automáticos</span></div></div>
+                <div class="news-item"><div class="news-info"><h4>${lastActivity ? formatDateTime(lastActivity.at) : '-'}</h4><span>Última actividad</span></div></div>
+            `;
+        }
+
+        function refreshSecurityStatus() {
+            const lockInfo = BruteForceProtection.getLockoutTimeRemaining();
+            const lockLabel = document.getElementById('lock-status');
+            if (lockLabel) {
+                lockLabel.textContent = lockInfo > 0
+                    ? 'Cuenta bloqueada por ' + lockInfo + ' segundos.'
+                    : 'Cuenta sin bloqueo activo.';
+            }
+
+            const credentials = Authenticator.getCurrentCredentials ? Authenticator.getCurrentCredentials() : null;
+            const usernameField = document.getElementById('security-username');
+            const roleField = document.getElementById('security-role');
+            const sessionUserLabel = document.getElementById('session-user-name');
+            const sessionRoleLabel = document.getElementById('session-user-role');
+            const currentRole = getCurrentRole();
+
+            if (usernameField) usernameField.value = credentials && credentials.username ? credentials.username : '';
+            if (roleField) roleField.value = credentials && credentials.role ? credentials.role : 'superadmin';
+            if (sessionUserLabel) sessionUserLabel.textContent = credentials && credentials.username ? credentials.username : 'Sin sesión';
+            if (sessionRoleLabel) sessionRoleLabel.textContent = currentRole || 'bloqueado';
+
+            renderSnapshotList();
+        }
+
+        function bindSecurityForm() {
+            const form = document.getElementById('security-credentials-form');
+            if (!form) {
+                return;
+            }
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                if (!requirePermission('manage_security', 'Solo superadmin puede cambiar credenciales.')) {
+                    return;
+                }
+
+                const currentPassword = document.getElementById('security-current-password').value;
+                const newUsername = document.getElementById('security-username').value.trim();
+                const newPassword = document.getElementById('security-new-password').value;
+                const confirmPassword = document.getElementById('security-confirm-password').value;
+                const role = document.getElementById('security-role').value;
+
+                if (newPassword !== confirmPassword) {
+                    showNotification('La confirmación de contraseña no coincide.', 'error');
+                    return;
+                }
+
+                const result = await Authenticator.updateCredentials(currentPassword, newUsername, newPassword, role);
+                if (!result.success) {
+                    showNotification(result.message || 'No se pudo actualizar las credenciales.', 'error');
+                    return;
+                }
+
+                logActivity('seguridad', 'actualizar credenciales', newUsername);
+                applyRoleUI();
+                showNotification('Credenciales actualizadas correctamente.', 'success');
+                form.reset();
+                refreshSecurityStatus();
+            });
+
+            const unlockBtn = document.getElementById('unlock-attempts-btn');
+            if (unlockBtn) {
+                unlockBtn.addEventListener('click', function() {
+                    if (!requirePermission('manage_security', 'Solo superadmin puede desbloquear intentos.')) {
+                        return;
+                    }
+
+                    BruteForceProtection.resetAttempts();
+                    logActivity('seguridad', 'reset intentos login', 'manual');
+                    refreshSecurityStatus();
+                    showNotification('Intentos fallidos reiniciados.', 'success');
+                });
+            }
+        }
+
+        function applyRoleUI() {
+            const role = getCurrentRole();
+            const roleBadge = document.getElementById('current-role-badge');
+            if (roleBadge) {
+                roleBadge.textContent = role || 'bloqueado';
+            }
+
+            const roleSelector = document.getElementById('role-selector');
+            if (roleSelector) {
+                roleSelector.value = role || 'superadmin';
+            }
+
+            const importBtn = document.querySelector('button[onclick="importData()"]');
+            const exportBtn = document.querySelector('button[onclick="exportData()"]');
+            if (importBtn) importBtn.disabled = !hasPermission('import_export');
+            if (exportBtn) exportBtn.disabled = !hasPermission('import_export');
+
+            const tabsToHide = [
+                { id: 'tab-gallery', perm: 'manage_gallery' },
+                { id: 'tab-projects', perm: 'manage_projects' },
+                { id: 'tab-services', perm: 'manage_services' },
+                { id: 'tab-security', perm: 'manage_security' }
+            ];
+
+            tabsToHide.forEach(tab => {
+                const element = document.getElementById(tab.id);
+                const nav = document.querySelector(`.tab-btn[data-target="${tab.id}"]`);
+                const allowed = hasPermission(tab.perm);
+                if (element) element.style.display = allowed ? '' : 'none';
+                if (nav) nav.style.display = allowed ? '' : 'none';
+            });
+        }
+
+        function attachChangeTracking() {
+            ['news-form', 'project-form', 'service-form'].forEach(formId => {
+                const form = document.getElementById(formId);
+                if (!form) {
+                    return;
+                }
+                form.addEventListener('input', trackChanges);
+                form.addEventListener('change', trackChanges);
+            });
+        }
+
+        function setupAutosave() {
+            const newsForm = document.getElementById('news-form');
+            const projectForm = document.getElementById('project-form');
+            const serviceForm = document.getElementById('service-form');
+
+            const saveNewsDraft = debounce(() => saveFormDraft('news', newsForm), 700);
+            const saveProjectsDraft = debounce(() => saveFormDraft('projects', projectForm), 700);
+            const saveServicesDraft = debounce(() => saveFormDraft('services', serviceForm), 700);
+
+            newsForm.addEventListener('input', saveNewsDraft);
+            projectForm.addEventListener('input', saveProjectsDraft);
+            serviceForm.addEventListener('input', saveServicesDraft);
+
+            restoreFormDraft('news', newsForm);
+            restoreFormDraft('projects', projectForm);
+            restoreFormDraft('services', serviceForm);
+            updateCharCounter();
+        }
+
+        function bindInactivityWatcher() {
+            const reset = () => {
+                SessionManager.refreshSession();
+            };
+
+            ['mousemove', 'keydown', 'click', 'touchstart'].forEach(eventName => {
+                document.addEventListener(eventName, reset, { passive: true });
+            });
+
+            clearInterval(sessionTimer);
+            sessionTimer = setInterval(() => {
+                const info = SessionManager.getSessionInfo();
+                const label = document.getElementById('session-countdown');
+                if (!info || !label) {
+                    return;
+                }
+
+                const seconds = Math.max(0, Math.floor(info.timeRemaining / 1000));
+                const min = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const sec = (seconds % 60).toString().padStart(2, '0');
+                label.textContent = min + ':' + sec;
+
+                if (seconds <= 0) {
+                    showNotification('Sesión expirada por inactividad.', 'error');
+                    logout();
+                }
+            }, 1000);
+        }
+
+        function createFilterBar(container, controlsHtml) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'form-group';
+            wrapper.style.margin = '0 0 1rem 0';
+            wrapper.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.7rem;">${controlsHtml}</div>`;
+            container.insertBefore(wrapper, container.firstChild.nextSibling);
+        }
+
+        function addDynamicFieldsAndFilters() {
+            const newsDateGroup = document.getElementById('news-date').closest('.form-group');
+            newsDateGroup.insertAdjacentHTML('afterend', `
+                <div class="form-group">
+                    <label for="news-status">Estado:</label>
+                    <select id="news-status" style="width:100%;padding:12px 15px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.95rem;">
+                        <option value="published">Publicado</option>
+                        <option value="draft">Borrador</option>
+                        <option value="scheduled">Programado</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="news-publish-at">Programar publicación:</label>
+                    <input type="datetime-local" id="news-publish-at">
+                </div>
+            `);
+
+            const projectDescriptionGroup = document.getElementById('project-description').closest('.form-group');
+            projectDescriptionGroup.insertAdjacentHTML('afterend', `
+                <div class="form-group">
+                    <label for="project-status">Estado:</label>
+                    <select id="project-status" style="width:100%;padding:12px 15px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.95rem;">
+                        <option value="published">Publicado</option>
+                        <option value="draft">Borrador</option>
+                    </select>
+                </div>
+            `);
+
+            const serviceAvailableGroup = document.getElementById('service-available').closest('.form-group');
+            serviceAvailableGroup.insertAdjacentHTML('afterend', `
+                <div class="form-group">
+                    <label for="service-status">Estado:</label>
+                    <select id="service-status" style="width:100%;padding:12px 15px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.95rem;">
+                        <option value="active">Activo</option>
+                        <option value="inactive">Inactivo</option>
+                    </select>
+                </div>
+            `);
+
+            const newsSection = document.querySelector('#tab-news .news-list-section');
+            const projectsSection = document.querySelector('#tab-projects .news-list-section');
+            const servicesSection = document.querySelector('#tab-services .news-list-section');
+
+            createFilterBar(newsSection, `
+                <input id="news-search" type="text" placeholder="Buscar noticia..." style="padding:10px 12px;border:2px solid #e2e8f0;border-radius:8px;">
+                <select id="news-filter-status" style="padding:10px 12px;border:2px solid #e2e8f0;border-radius:8px;">
+                    <option value="all">Todos los estados</option>
+                    <option value="published">Publicado</option>
+                    <option value="draft">Borrador</option>
+                    <option value="scheduled">Programado</option>
+                </select>
+                <select id="news-sort" style="padding:10px 12px;border:2px solid #e2e8f0;border-radius:8px;">
+                    <option value="newest">Más recientes</option>
+                    <option value="oldest">Más antiguas</option>
+                </select>
+            `);
+
+            createFilterBar(projectsSection, `
+                <input id="projects-search" type="text" placeholder="Buscar proyecto..." style="padding:10px 12px;border:2px solid #e2e8f0;border-radius:8px;">
+                <select id="projects-filter-category" style="padding:10px 12px;border:2px solid #e2e8f0;border-radius:8px;">
+                    <option value="all">Todas las categorías</option>
+                    <option value="Reparación">Reparación</option>
+                    <option value="Redes">Redes</option>
+                    <option value="Programación">Programación</option>
+                    <option value="Ciberseguridad">Ciberseguridad</option>
+                    <option value="IA">Inteligencia Artificial</option>
+                    <option value="Hardware">Hardware</option>
+                    <option value="Otro">Otro</option>
+                </select>
+                <select id="projects-filter-status" style="padding:10px 12px;border:2px solid #e2e8f0;border-radius:8px;">
+                    <option value="all">Todos los estados</option>
+                    <option value="published">Publicado</option>
+                    <option value="draft">Borrador</option>
+                </select>
+            `);
+
+            createFilterBar(servicesSection, `
+                <input id="services-search" type="text" placeholder="Buscar servicio..." style="padding:10px 12px;border:2px solid #e2e8f0;border-radius:8px;">
+                <select id="services-filter-status" style="padding:10px 12px;border:2px solid #e2e8f0;border-radius:8px;">
+                    <option value="all">Todos</option>
+                    <option value="active">Activos</option>
+                    <option value="inactive">Inactivos</option>
+                </select>
+            `);
+
+            document.getElementById('news-search').addEventListener('input', e => { filters.news.query = e.target.value; renderNewsList(); });
+            document.getElementById('news-filter-status').addEventListener('change', e => { filters.news.status = e.target.value; renderNewsList(); });
+            document.getElementById('news-sort').addEventListener('change', e => { filters.news.sort = e.target.value; renderNewsList(); });
+
+            document.getElementById('projects-search').addEventListener('input', e => { filters.projects.query = e.target.value; renderProjectsList(); });
+            document.getElementById('projects-filter-category').addEventListener('change', e => { filters.projects.category = e.target.value; renderProjectsList(); });
+            document.getElementById('projects-filter-status').addEventListener('change', e => { filters.projects.status = e.target.value; renderProjectsList(); });
+
+            document.getElementById('services-search').addEventListener('input', e => { filters.services.query = e.target.value; renderServicesList(); });
+            document.getElementById('services-filter-status').addEventListener('change', e => { filters.services.status = e.target.value; renderServicesList(); });
+
+            document.getElementById('news-title').setAttribute('maxlength', '120');
+            document.getElementById('news-content').setAttribute('maxlength', '2500');
+            document.getElementById('project-title').setAttribute('maxlength', '120');
+            document.getElementById('project-student').setAttribute('maxlength', '120');
+            document.getElementById('project-description').setAttribute('maxlength', '800');
+            document.getElementById('service-name').setAttribute('maxlength', '100');
+            document.getElementById('service-description').setAttribute('maxlength', '500');
+        }
+
+        function injectMetricsAndSecurityTabs() {
+            const content = document.querySelector('.admin-content');
+            const tabs = document.querySelector('.admin-tabs');
+
+            const metrics = document.createElement('div');
+            metrics.style.padding = '1.25rem 2rem';
+            metrics.style.background = '#f8fafc';
+            metrics.style.borderBottom = '1px solid #e2e8f0';
+            metrics.innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+                    <h3 style="color:#0f172a;font-size:1rem;">Resumen del Panel</h3>
+                    <div style="display:flex;align-items:center;gap:0.5rem;">
+                        <span style="font-size:0.85rem;color:#334155;">Rol activo:</span>
+                        <span id="current-role-badge" style="background:#0ea5e9;color:white;padding:3px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;">superadmin</span>
+                        <select id="role-selector" disabled aria-label="Rol actual de la sesión" style="padding:6px 10px;border:2px solid #e2e8f0;border-radius:8px;background:#e2e8f0;color:#475569;cursor:not-allowed;">
+                            <option value="superadmin">superadmin</option>
+                            <option value="editor">editor</option>
+                            <option value="moderador">moderador</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="metrics-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:0.7rem;margin-top:0.8rem;"></div>
+            `;
+            content.insertBefore(metrics, tabs);
+
+            tabs.insertAdjacentHTML('beforeend', `
+                <button class="tab-btn" data-target="tab-stats" onclick="openTab('stats', this)"><i class="fa-solid fa-chart-line"></i> Estadísticas</button>
+                <button class="tab-btn" data-target="tab-activity" onclick="openTab('activity', this)"><i class="fa-solid fa-clock-rotate-left"></i> Actividad</button>
+                <button class="tab-btn" data-target="tab-security" onclick="openTab('security', this)"><i class="fa-solid fa-shield-halved"></i> Seguridad</button>
+            `);
+
+            const statsTab = document.createElement('div');
+            statsTab.id = 'tab-stats';
+            statsTab.className = 'tab-content';
+            statsTab.innerHTML = `
+                <div class="news-form-section">
+                    <div class="stats-dash-header">
+                        <div>
+                            <h3 style="margin:0 0 0.35rem 0;color:#0f172a;font-size:1.15rem;display:flex;align-items:center;gap:10px;">
+                                <i class="fa-solid fa-chart-line" style="color:#0ea5e9;"></i> Tráfico del sitio público
+                            </h3>
+                            <p style="margin:0;color:#64748b;font-size:0.9rem;max-width:52rem;">
+                                Visitas registradas desde la página principal (index). Los totales por día usan la hora de <strong>Puerto Rico</strong>.
+                                Esta pestaña se actualiza sola cada 3 segundos mientras la tengas abierta.
+                            </p>
+                        </div>
+                        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
+                            <span class="stats-live-pill"><span class="stats-live-dot" aria-hidden="true"></span> Tiempo real (3s)</span>
+                            <button type="button" class="btn-secondary" onclick="loadStatsDashboard()"><i class="fa-solid fa-rotate"></i> Actualizar ahora</button>
+                        </div>
+                    </div>
+                    <p id="stats-conn-msg" class="stats-hint" style="display:none;"></p>
+                    <p id="stats-updated-at" style="font-size:0.82rem;color:#64748b;margin:0 0 0.75rem 0;"></p>
+                    <div class="stats-kpi-grid">
+                        <div class="stats-kpi"><h4 id="stats-kpi-today">—</h4><span>Visitas hoy (PR)</span></div>
+                        <div class="stats-kpi"><h4 id="stats-kpi-unique">—</h4><span>Visitantes distintos hoy (aprox.)</span></div>
+                        <div class="stats-kpi"><h4 id="stats-kpi-yesterday">—</h4><span>Visitas ayer</span></div>
+                        <div class="stats-kpi"><h4 id="stats-kpi-7d">—</h4><span>Total últimos 7 días</span></div>
+                        <div class="stats-kpi"><h4 id="stats-kpi-hour">—</h4><span>Registros en la última hora (UTC)</span></div>
+                    </div>
+                    <div class="stats-bars-wrap">
+                        <h4>Últimos días (altura proporcional al máximo de la semana mostrada)</h4>
+                        <div class="stats-bars" id="stats-bars-host"></div>
+                    </div>
+                    <div class="stats-table-wrap">
+                        <table class="stats-table">
+                            <thead><tr><th>Fecha</th><th>Visitas</th><th>Última actualización</th></tr></thead>
+                            <tbody id="stats-table-body"></tbody>
+                        </table>
+                    </div>
+                    <p class="stats-hint" style="background:#eff6ff;border-color:#93c5fd;color:#1e3a8a;">
+                        <strong>Primera vez:</strong> en Supabase, ejecuta el script <code>database/page_analytics.sql</code>. Luego abre el sitio público en otra pestaña para generar visitas de prueba.
+                    </p>
+                </div>
+            `;
+
+            const activityTab = document.createElement('div');
+            activityTab.id = 'tab-activity';
+            activityTab.className = 'tab-content';
+            activityTab.innerHTML = `
+                <div class="news-form-section">
+                    <h3><i class="fa-solid fa-clock-rotate-left"></i> Historial de actividad</h3>
+                    <div id="activity-log-list" class="news-list"></div>
+                </div>
+            `;
+
+            const securityTab = document.createElement('div');
+            securityTab.id = 'tab-security';
+            securityTab.className = 'tab-content';
+            securityTab.innerHTML = `
+                <div class="news-form-section">
+                    <h3><i class="fa-solid fa-shield-halved"></i> Seguridad y credenciales</h3>
+                    <p id="lock-status" style="margin-bottom:1rem;color:#475569;">Cuenta sin bloqueo activo.</p>
+                    <form id="security-credentials-form">
+                        <div class="form-group">
+                            <label for="security-username">Usuario:</label>
+                            <input type="text" id="security-username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="security-role">Rol por defecto del admin:</label>
+                            <select id="security-role" style="width:100%;padding:12px 15px;border:2px solid #e2e8f0;border-radius:8px;">
+                                <option value="superadmin">superadmin</option>
+                                <option value="editor">editor</option>
+                                <option value="moderador">moderador</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="security-current-password">Contraseña actual:</label>
+                            <input type="password" id="security-current-password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="security-new-password">Nueva contraseña:</label>
+                            <input type="password" id="security-new-password" minlength="8" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="security-confirm-password">Confirmar nueva contraseña:</label>
+                            <input type="password" id="security-confirm-password" minlength="8" required>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary"><i class="fa-solid fa-key"></i> Actualizar credenciales</button>
+                            <button type="button" id="unlock-attempts-btn" class="btn-secondary"><i class="fa-solid fa-unlock"></i> Reiniciar intentos</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="news-form-section">
+                    <h3><i class="fa-solid fa-database"></i> Respaldos automáticos</h3>
+                    <div id="snapshot-list" class="news-list"></div>
+                </div>
+            `;
+
+            content.appendChild(statsTab);
+            content.appendChild(activityTab);
+            content.appendChild(securityTab);
+
+            const roleSelector = document.getElementById('role-selector');
+            if (roleSelector) {
+                roleSelector.setAttribute('title', 'El rol depende de la sesión autenticada.');
+            }
+        }
+
+        function enhanceHeader() {
+            const actions = document.querySelector('.header-actions');
+            if (!actions) {
+                return;
+            }
+
+            const userPill = document.createElement('span');
+            userPill.style.cssText = 'background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);padding:7px 10px;border-radius:6px;font-size:0.85rem;display:inline-flex;gap:6px;align-items:center;';
+            userPill.innerHTML = '<i class="fa-solid fa-user-shield"></i> <strong id="session-user-name">Admin</strong> <span style="opacity:0.7;">·</span> <span id="session-user-role">superadmin</span>';
+
+            const sessionPill = document.createElement('span');
+            sessionPill.style.cssText = 'background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);padding:7px 10px;border-radius:6px;font-size:0.85rem;display:inline-flex;gap:6px;align-items:center;';
+            sessionPill.innerHTML = '<i class="fa-solid fa-hourglass-half"></i> Sesión <strong id="session-countdown">--:--</strong>';
+            actions.insertBefore(userPill, actions.firstChild);
+            actions.insertBefore(sessionPill, actions.firstChild);
+        }
+
+        function bootstrap() {
+            enhanceHeader();
+            injectMetricsAndSecurityTabs();
+            addDynamicFieldsAndFilters();
+            bindSecurityForm();
+            attachChangeTracking();
+            setupAutosave();
+            bindInactivityWatcher();
+            applyRoleUI();
+            refreshSecurityStatus();
+        }
+
+        let adminStorageSyncTimer = null;
+        function refreshAdminFromStorage(changedKey) {
+            if (adminStorageSyncTimer) {
+                clearTimeout(adminStorageSyncTimer);
+            }
+
+            adminStorageSyncTimer = setTimeout(() => {
+                if (!changedKey || changedKey === STORAGE_KEYS.NEWS) {
+                    runScheduledPublication();
+                    renderNewsList();
+                }
+
+                if (!changedKey || changedKey === STORAGE_KEYS.PROJECTS) {
+                    renderProjectsList();
+                }
+
+                if (!changedKey || changedKey === STORAGE_KEYS.SERVICES) {
+                    renderServicesList();
+                }
+
+                if (!changedKey || changedKey === STORAGE_KEYS.GALLERY || changedKey === STORAGE_KEYS.GALLERY_SETTINGS) {
+                    initializeGallery();
+                    renderAdminGalleryList();
+                }
+
+                if (!changedKey || changedKey === STORAGE_KEYS.ACTIVITY) {
+                    renderActivityLog();
+                }
+
+                if (!changedKey || changedKey === STORAGE_KEYS.SNAPSHOTS) {
+                    renderSnapshotList();
+                }
+
+                applyRoleUI();
+                refreshSecurityStatus();
+
+                updateMetrics();
+            }, 120);
+        }
+
+        window.addEventListener('storage', function(event) {
+            const syncedKeys = [
+                STORAGE_KEYS.NEWS,
+                STORAGE_KEYS.PROJECTS,
+                STORAGE_KEYS.SERVICES,
+                STORAGE_KEYS.GALLERY,
+                STORAGE_KEYS.GALLERY_SETTINGS,
+                STORAGE_KEYS.ACTIVITY,
+                STORAGE_KEYS.SNAPSHOTS,
+                'computec_admin_credentials',
+                'computec_admin_session'
+            ];
+
+            if (!event || !syncedKeys.includes(event.key)) {
+                return;
+            }
+
+            refreshAdminFromStorage(event.key);
+        });
+
+        const adminAuthForm = document.getElementById('admin-auth-form');
+        if (adminAuthForm) {
+            adminAuthForm.addEventListener('submit', handleAdminPageLogin);
+        }
+
+        checkAuth();
+        bootstrap();
+        runScheduledPublication();
+        setInterval(runScheduledPublication, 60000);
+        renderNewsList();
+        renderProjectsList();
+        renderServicesList();
+        initializeGallery();
+        renderAdminGalleryList();
+        renderActivityLog();
+        updateMetrics();
+    </script>
+</body>
+</html>
+
+

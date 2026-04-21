@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>IA COMPUTEC</title>
+    <meta name="description" content="Accede a la IA de COMPUTEC desde una página dedicada.">
+    <link rel="icon" type="image/png" href="galeria/LogoLimpio4.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #059669;
+            --text-dark: #111827;
+            --text-light: #64748b;
+            --white: #ffffff;
+            --gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --bg: linear-gradient(180deg, #e0f2fe 0%, #f8fafc 38%, #eef2ff 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--text-dark);
+            background: var(--bg);
+        }
+
+        .page-shell {
+            min-height: 100vh;
+            display: grid;
+            grid-template-rows: auto 1fr;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 18px 22px;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header-copy {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .header-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            color: var(--white);
+            background: var(--gradient);
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.28);
+            flex: 0 0 auto;
+        }
+
+        .header-text h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        .header-text p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-top: 2px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        .header-link:hover {
+            transform: translateY(-1px);
+        }
+
+        .header-link.primary {
+            background: var(--gradient);
+            color: var(--white);
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.22);
+        }
+
+        .header-link.secondary {
+            background: rgba(255, 255, 255, 0.92);
+            color: var(--text-dark);
+            border: 1px solid rgba(148, 163, 184, 0.28);
+        }
+
+        .page-main {
+            padding: 22px;
+        }
+
+        .ai-frame-wrap {
+            width: min(1400px, 100%);
+            height: calc(100vh - 128px);
+            margin: 0 auto;
+            border-radius: 24px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(148, 163, 184, 0.24);
+            box-shadow: 0 26px 70px rgba(15, 23, 42, 0.12);
+        }
+
+        .ai-frame {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            background: #fff;
+        }
+
+        .frame-fallback {
+            padding: 18px 22px;
+            color: var(--text-light);
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .frame-fallback a {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        @media (max-width: 900px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-actions {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .page-main {
+                padding: 14px;
+            }
+
+            .ai-frame-wrap {
+                height: calc(100vh - 182px);
+                border-radius: 18px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .header-copy {
+                align-items: flex-start;
+            }
+
+            .header-text h1 {
+                font-size: 1rem;
+            }
+
+            .header-text p {
+                font-size: 0.88rem;
+            }
+
+            .header-link {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .ai-frame-wrap {
+                height: calc(100vh - 220px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <header class="page-header">
+            <div class="header-copy">
+                <div class="header-icon"><i class="fa-solid fa-robot"></i></div>
+                <div class="header-text">
+                    <h1>IA COMPUTEC</h1>
+                    <p>Asistente completo para preguntas sobre cursos, admisión, servicios y orientación tecnológica.</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a class="header-link secondary" href="index.html"><i class="fa-solid fa-arrow-left"></i> Volver al sitio</a>
+                <a class="header-link primary" href="https://computec-ai-tutor-31755169330.us-west1.run.app/" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-up-right-from-square"></i> Abrir en pestaña nueva</a>
+            </div>
+        </header>
+
+        <main class="page-main">
+            <div class="ai-frame-wrap">
+                <iframe
+                    class="ai-frame"
+                    src="https://computec-ai-tutor-31755169330.us-west1.run.app/"
+                    title="IA COMPUTEC"
+                    loading="eager"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    allow="clipboard-read; clipboard-write"
+                ></iframe>
+            </div>
+            <p class="frame-fallback">
+                Si la IA no carga dentro de esta página, usa
+                <a href="https://computec-ai-tutor-31755169330.us-west1.run.app/" target="_blank" rel="noopener noreferrer">este acceso directo</a>.
+            </p>
+        </main>
+    </div>
+</body>
+</html>

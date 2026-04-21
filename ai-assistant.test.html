@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>IA COMPUTEC · Tests</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 900px; margin: 24px auto; padding: 0 16px; background: #0f172a; color: #e2e8f0; }
+        h1 { margin: 0 0 8px; }
+        .summary { padding: 10px 14px; border-radius: 10px; margin: 12px 0 18px; font-weight: 600; }
+        .ok { background: #065f46; color: #ecfdf5; }
+        .fail { background: #991b1b; color: #fee2e2; }
+        .suite { margin: 14px 0; padding: 10px 14px; background: #1e293b; border-radius: 10px; }
+        .suite h2 { font-size: 1rem; margin: 0 0 8px; color: #93c5fd; }
+        .case { display: flex; gap: 8px; font-size: 0.9rem; padding: 3px 0; line-height: 1.4; }
+        .case .mark { flex: 0 0 18px; font-weight: 700; }
+        .pass { color: #34d399; }
+        .fail-case { color: #fca5a5; }
+        .msg { color: #94a3b8; font-size: 0.8rem; }
+        #ai-assistant-root { display: none; }
+    </style>
+</head>
+<body>
+    <h1>IA COMPUTEC · Suite de pruebas</h1>
+    <p>Ejecuta pruebas del motor NLU, la API pública y la integración actual del acceso directo a la IA.</p>
+    <div id="summary" class="summary">Ejecutando…</div>
+    <div id="results"></div>
+    <iframe id="index-test-frame" src="index.html" style="display:none; width:0; height:0; border:0;" title="Index test frame"></iframe>
+
+    <!-- Stub opcional para simular noticias si se quiere ejercitar dynamicNews -->
+    <script>
+        window.getNews = function () {
+            return [
+                { id: 1, title: 'Prueba Gaming Day', date: '2026-02-13', content: 'Torneo de prueba', status: 'published' }
+            ];
+        };
+    </script>
+    <script src="ai-assistant.js"></script>
+    <script>
+        (async function () {
+            const suites = [];
+            let currentSuite = null;
+            function describe(name, fn) {
+                currentSuite = { name, cases: [] };
+                suites.push(currentSuite);
+                fn();
+            }
+            function it(name, fn) {
+                currentSuite.cases.push({ name, fn });
+            }
+            function assert(cond, msg) { if (!cond) throw new Error(msg || 'assertion failed'); }
+            function eq(a, b, msg) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error((msg || 'not equal') + ' :: ' + JSON.stringify(a) + ' !== ' + JSON.stringify(b)); }
+            function waitForFrame(frame) {
+                return new Promise((resolve, reject) => {
+                    const timer = setTimeout(() => reject(new Error('index.html no cargó a tiempo')), 8000);
+                    function done() {
+                        clearTimeout(timer);
+                        resolve(frame);
+                    }
+                    if (frame.contentDocument && frame.contentDocument.readyState === 'complete') {
+                        done();
+                        return;
+                    }
+                    frame.addEventListener('load', done, { once: true });
+                });
+            }
+
+            const api = window.AIComputec && window.AIComputec._internals;
+            if (!api) {
+                document.getElementById('summary').className = 'summary fail';
+                document.getElementById('summary').textContent = 'No se pudo cargar window.AIComputec._internals';
+                return;
+            }
+            const { normalize, tokenize, expandTokens, editDistance, query, KB, state } = api;
+            const externalUrl = 'https://computec-ai-tutor-31755169330.us-west1.run.app/';
+
+            describe('normalize()', () => {
+                it('quita acentos y pasa a minúsculas', () => eq(normalize('Inscripción ÁGIL'), 'inscripcion agil'));
+                it('colapsa espacios', () => eq(normalize('  hola   mundo  '), 'hola mundo'));
+                it('quita caracteres raros', () => assert(!/@/.test(normalize('a@b'))));
+            });
+
+            describe('tokenize()', () => {
+                it('elimina stopwords comunes', () => {
+                    const t = tokenize('que cursos hay en la escuela');
+                    assert(!t.includes('que'), 'no debería incluir "que"');
+                    assert(!t.includes('en'), 'no debería incluir "en"');
+                    assert(t.includes('cursos'));
+                });
+                it('descarta tokens de 1 caracter', () => {
+                    const t = tokenize('a b curso');
+                    eq(t, ['curso']);
+                });
+            });
+
+            describe('expandTokens() / sinónimos', () => {
+                it('precio se expande a costo', () => assert(expandTokens(['precio']).includes('costo')));
+                it('ubicacion se expande a direccion', () => assert(expandTokens(['ubicacion']).includes('direccion')));
+                it('clase se expande a curso via sinonimos de curso', () => {
+                    const exp = expandTokens(['curso']);
+                    assert(exp.includes('clase'));
+                });
+            });
+
+            describe('editDistance()', () => {
+                it('igual = 0', () => eq(editDistance('curso', 'curso'), 0));
+                it('1 sustitución', () => eq(editDistance('curso', 'corso'), 1));
+                it('inserción', () => eq(editDistance('curso', 'cursos'), 1));
+                it('vacío', () => eq(editDistance('', 'abc'), 3));
+            });
+
+            function reset() { state.lastTopic = null; }
+            function askTopic(text) {
+                const r = query(text);
+                // find which KB entry matches by answer
+                const entry = KB.find(e => r.answer === e.answer);
+                return entry ? entry.id : null;
+            }
+
+            describe('query() · resolución de intenciones', () => {
+                it('"¿qué cursos hay?" → cursos', () => { reset(); eq(askTopic('¿qué cursos hay?'), 'cursos'); });
+                it('"horario de atención" → horario', () => { reset(); eq(askTopic('horario de atencion'), 'horario'); });
+                it('"dónde están ubicados" → ubicacion', () => { reset(); eq(askTopic('donde estan ubicados'), 'ubicacion'); });
+                it('"quiero inscribirme" → inscripcion', () => { reset(); eq(askTopic('quiero inscribirme'), 'inscripcion'); });
+                it('"cuánto cuesta el curso" → costo', () => { reset(); eq(askTopic('cuanto cuesta el curso'), 'costo'); });
+                it('"dan certificado" → faq-certificado', () => { reset(); eq(askTopic('dan certificado'), 'faq-certificado'); });
+                it('"ciberseguridad" → curso-ciberseguridad', () => { reset(); eq(askTopic('curso de ciberseguridad'), 'curso-ciberseguridad'); });
+                it('"servicios para maestros" → faq-servicios-maestros', () => { reset(); eq(askTopic('servicios para maestros'), 'faq-servicios-maestros'); });
+            });
+
+            describe('query() · tolerancia a tipeos', () => {
+                it('"presio" ≈ precio → costo', () => { reset(); eq(askTopic('cuanto es el presio'), 'costo'); });
+                it('"inscrivirme" ≈ inscribirme → inscripcion', () => { reset(); eq(askTopic('quiero inscrivirme'), 'inscripcion'); });
+            });
+
+            describe('query() · small talk', () => {
+                it('"hola" responde saludo', () => { reset(); const r = query('hola'); assert(/hola|IA COMPUTEC/i.test(r.answer)); });
+                it('"gracias" responde agradecimiento', () => { reset(); const r = query('muchas gracias'); assert(/gusto/i.test(r.answer)); });
+            });
+
+            describe('query() · contexto follow-up', () => {
+                it('después de cursos, "cuánto duran" → faq-duracion', () => {
+                    reset();
+                    askTopic('¿qué cursos hay?');
+                    eq(askTopic('cuanto duran'), 'faq-duracion');
+                });
+            });
+
+            describe('query() · fallback', () => {
+                it('entrada sin sentido devuelve sugerencias o fallback', () => {
+                    reset();
+                    const r = query('xyz qwerty 123');
+                    assert(Array.isArray(r.chips) && r.chips.length > 0);
+                });
+            });
+
+            describe('API pública', () => {
+                it('expone window.AIComputec', () => {
+                    assert(window.AIComputec, 'window.AIComputec no está disponible');
+                });
+                it('expone métodos principales', () => {
+                    ['open', 'close', 'toggle', 'ask', 'clear'].forEach(method => {
+                        assert(typeof window.AIComputec[method] === 'function', 'Falta el método ' + method);
+                    });
+                });
+                it('expone internals para pruebas', () => {
+                    assert(window.AIComputec._internals, 'Faltan internals de prueba');
+                    assert(window.AIComputec._internals.SCORE_THRESHOLD > 0, 'SCORE_THRESHOLD inválido');
+                });
+            });
+
+            describe('Integración de acceso directo', () => {
+                it('index.html carga correctamente para inspección', async () => {
+                    const frame = document.getElementById('index-test-frame');
+                    await waitForFrame(frame);
+                    assert(frame.contentDocument, 'No se pudo acceder al documento del index');
+                });
+                it('el botón IA COMPUTEC apunta al tutor externo', async () => {
+                    const frame = document.getElementById('index-test-frame');
+                    await waitForFrame(frame);
+                    const doc = frame.contentDocument;
+                    const link = doc.getElementById('ai-toggle-btn');
+                    assert(link, 'No existe #ai-toggle-btn en index.html');
+                    eq(link.tagName, 'A', 'El acceso directo debe ser un enlace');
+                    eq(link.getAttribute('href'), externalUrl, 'href del acceso directo incorrecto');
+                    eq(link.getAttribute('target'), '_blank', 'target incorrecto');
+                });
+                it('index.html ya no monta el chat flotante', async () => {
+                    const frame = document.getElementById('index-test-frame');
+                    await waitForFrame(frame);
+                    const doc = frame.contentDocument;
+                    assert(!doc.getElementById('ai-assistant-root'), 'El chat flotante todavía existe en index.html');
+                    const hasAssistantScript = Array.from(doc.scripts).some(script => {
+                        const src = script.getAttribute('src') || '';
+                        return /ai-assistant\.js$/i.test(src);
+                    });
+                    assert(!hasAssistantScript, 'index.html todavía carga ai-assistant.js');
+                });
+            });
+
+            for (const suite of suites) {
+                for (const testCase of suite.cases) {
+                    try {
+                        await testCase.fn();
+                        testCase.ok = true;
+                    } catch (e) {
+                        testCase.ok = false;
+                        testCase.msg = e && e.message ? e.message : String(e);
+                    }
+                }
+            }
+
+            // render
+            let total = 0, passed = 0;
+            const root = document.getElementById('results');
+            suites.forEach(s => {
+                const box = document.createElement('div');
+                box.className = 'suite';
+                box.innerHTML = '<h2>' + s.name + '</h2>';
+                s.cases.forEach(c => {
+                    total++;
+                    if (c.ok) passed++;
+                    const line = document.createElement('div');
+                    line.className = 'case ' + (c.ok ? 'pass' : 'fail-case');
+                    line.innerHTML = '<span class="mark">' + (c.ok ? '✓' : '✗') + '</span><span>' + c.name + (c.msg ? ' <span class="msg">— ' + c.msg + '</span>' : '') + '</span>';
+                    box.appendChild(line);
+                });
+                root.appendChild(box);
+            });
+            const sum = document.getElementById('summary');
+            sum.className = 'summary ' + (passed === total ? 'ok' : 'fail');
+            sum.textContent = passed + ' / ' + total + ' pruebas pasaron';
+        })();
+    </script>
+</body>
+</html>
