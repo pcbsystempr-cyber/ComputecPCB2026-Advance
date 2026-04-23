@@ -105,14 +105,12 @@
                 <div class="logo">
                     <img src="galeria/LogoLimpio4.png" alt="COMPUTEC Logo" class="logo-image" loading="eager" fetchpriority="high" decoding="async" width="80" height="80">
                 </div>
-                <ul class="nav-menu">
+                <ul class="nav-menu">     
                     <li><a href="#inicio">Inicio</a></li>
-                    <li><a href="#admision">Estudia en COMPUTEC</a></li>
-                    <li><a href="#cursos">Cursos</a></li>
                     <li><a href="#proyectos">Proyectos</a></li>
                     <li><a href="#servicios-tecnicos">Servicios</a></li>
                     <li><a href="#contacto">Contacto</a></li>
-                    <li>
+                    <li class="admin-mobile-only">
                         <a href="admin.html" class="admin-btn" id="admin-nav-link" aria-label="Abrir panel de administración">
                             <i class="fa-solid fa-cog"></i> Admin
                         </a>
@@ -125,9 +123,9 @@
                     </li>
                 </ul>
                 <button class="hamburger" type="button" aria-label="Abrir menú de navegación" aria-expanded="false">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
                 </button>
             </div>
         </nav>
@@ -491,7 +489,7 @@
                             <span class="tech-tag">CSS3</span>
                             <span class="tech-tag">JavaScript</span>
                         </div>
-                        <button class="view-project-btn" onclick="window.open('https://pcbsystempr-cyber.github.io/pcbsystem2026/animacion.html', '_blank')">Ver Proyecto</button>
+                        <button class="view-project-btn" onclick="window.open('https://pcbsystempr-cyber.github.io/pcbsystem2026/', '_blank')">Ver página</button>
                     </div>
                 </div>
 
@@ -511,7 +509,7 @@
                             <span class="tech-tag">CSS3</span>
                             <span class="tech-tag">JavaScript</span>
                         </div>
-                        <button class="view-project-btn" onclick="window.open('https://pcbsystempr-cyber.github.io/Casa-Abierta/', '_blank')">Ver Proyecto</button>
+                        <button class="view-project-btn" onclick="window.open('https://pcbsystempr-cyber.github.io/Casa-Abierta/', '_blank')">Ver página</button>
                     </div>
                 </div>
 
@@ -531,7 +529,7 @@
                             <span class="tech-tag">CSS3</span>
                             <span class="tech-tag">JavaScript</span>
                         </div>
-                        <button class="view-project-btn" onclick="window.open('https://pcbsystempr-cyber.github.io/Unidad-de-ApoyoSocioEmocional/', '_blank')">Ver Proyecto</button>
+                        <button class="view-project-btn" onclick="window.open('https://pcbsystempr-cyber.github.io/Unidad_de_Apoyo_Socioemocional_Prueba/', '_blank')">Ver página</button>
                     </div>
                 </div>
 
@@ -779,11 +777,6 @@
             </div>
 
             <div class="faq-toolbar">
-                <div class="faq-search">
-                    <i class="fa-solid fa-magnifying-glass faq-search-icon" aria-hidden="true"></i>
-                    <input type="search" id="faqSearch" class="faq-search-input" placeholder="Buscar una pregunta…" aria-label="Buscar en preguntas frecuentes" autocomplete="off">
-                    <button type="button" class="faq-search-clear" id="faqSearchClear" aria-label="Limpiar búsqueda" hidden><i class="fa-solid fa-xmark"></i></button>
-                </div>
                 <div class="faq-categories" role="tablist" aria-label="Categorías de preguntas">
                     <button type="button" class="faq-chip active" data-category="todas" role="tab" aria-selected="true"><i class="fa-solid fa-list"></i><span>Todas</span></button>
                     <button type="button" class="faq-chip" data-category="inscripcion" role="tab" aria-selected="false"><i class="fa-solid fa-clipboard-check"></i><span>Inscripción</span></button>
@@ -896,7 +889,7 @@
                     <strong>¿No está tu pregunta aquí?</strong>
                     <span>Nuestro asistente IA COMPUTEC puede ayudarte al instante.</span>
                 </div>
-                <button type="button" class="faq-footer-btn" onclick="window.open('https://computec-ai-tutor-31755169330.us-west1.run.app/','_blank','noopener,noreferrer')">
+                <button type="button" class="faq-footer-btn" onclick="window.location.href='ai.html'">
                     <i class="fa-solid fa-comments"></i> Hablar con la IA
                 </button>
             </div>
@@ -1070,22 +1063,13 @@
                                 <i class="fa-solid fa-book-open"></i>
                                 <span>Ver cursos</span>
                             </button>
-                            <button type="button" class="quick-action" onclick="window.open('https://computec-ai-tutor-31755169330.us-west1.run.app/','_blank','noopener,noreferrer')">
+                            <button type="button" class="quick-action" onclick="window.location.href='ai.html'">
                                 <i class="fa-solid fa-robot"></i>
                                 <span>Hablar con IA</span>
                             </button>
                         </div>
                     </div>
 
-                    <div class="contact-social">
-                        <p class="contact-social-title">Síguenos</p>
-                        <div class="social-links contact-social-links">
-                            <a id="social-facebook" href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-                            <a id="social-instagram" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                            <a id="social-youtube" href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
-                            <a id="social-tiktok" href="https://www.tiktok.com/" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
-                        </div>
-                    </div>
                 </aside>
 
                 <div class="contact-form-section">
@@ -1175,7 +1159,7 @@
         <button id="scrollToTopBtn" class="scroll-to-top" type="button" onclick="scrollToTop()" aria-label="Volver arriba">
             <i class="fa-solid fa-arrow-up"></i>
         </button>
-        <a id="ai-toggle-btn" class="chatbot-ia-link" href="https://computec-ai-tutor-31755169330.us-west1.run.app/" target="_blank" rel="noopener noreferrer" title="Abrir IA de COMPUTEC" aria-label="Abrir IA de COMPUTEC">
+        <a id="ai-toggle-btn" class="chatbot-ia-link" href="ai.html" title="Abrir IA de COMPUTEC" aria-label="Abrir IA de COMPUTEC">
             <span class="chatbot-label">IA COMPUTEC</span>
             <span class="chatbot-fab" aria-hidden="true">
                 <i class="fa-solid fa-robot"></i>
@@ -1218,12 +1202,6 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <div class="footer-social">
-                    <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
-                    <a href="https://www.tiktok.com/" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
-                </div>
                 <p>&copy; 2026 COMPUTEC - Escuela Superior Vocacional Pablo Colón Berdecía. Todos los derechos reservados.</p>
             </div>
         </div>
