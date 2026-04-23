@@ -602,6 +602,8 @@
             display: flex;
             gap: 0.5rem;
             align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
         .btn-header-action {
             background: rgba(255,255,255,0.15);
@@ -741,6 +743,94 @@
             border-radius: 999px;
             border: 1px solid #e2e8f0;
         }
+        .stats-conn-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            color: #334155;
+            font-weight: 600;
+        }
+        .stats-conn-pill::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #94a3b8;
+        }
+        .stats-conn-pill.is-loading {
+            background: #eff6ff;
+            border-color: #93c5fd;
+            color: #1d4ed8;
+        }
+        .stats-conn-pill.is-loading::before {
+            background: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+            animation: statsPulse 1.4s ease-in-out infinite;
+        }
+        .stats-conn-pill.is-ok {
+            background: #ecfdf5;
+            border-color: #86efac;
+            color: #166534;
+        }
+        .stats-conn-pill.is-ok::before {
+            background: #22c55e;
+        }
+        .stats-conn-pill.is-error {
+            background: #fef2f2;
+            border-color: #fca5a5;
+            color: #991b1b;
+        }
+        .stats-conn-pill.is-error::before {
+            background: #ef4444;
+        }
+        .stats-mode-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+        }
+        .stats-mode-pill::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #94a3b8;
+        }
+        .stats-mode-pill.is-loading {
+            background: #eff6ff;
+            border-color: #93c5fd;
+            color: #1d4ed8;
+        }
+        .stats-mode-pill.is-loading::before {
+            background: #3b82f6;
+        }
+        .stats-mode-pill.is-ok {
+            background: #ecfdf5;
+            border-color: #86efac;
+            color: #166534;
+        }
+        .stats-mode-pill.is-ok::before {
+            background: #22c55e;
+        }
+        .stats-mode-pill.is-fallback {
+            background: #fffbeb;
+            border-color: #fcd34d;
+            color: #92400e;
+        }
+        .stats-mode-pill.is-fallback::before {
+            background: #f59e0b;
+        }
         .stats-live-dot {
             width: 8px;
             height: 8px;
@@ -871,19 +961,58 @@
 
         /* Responsive */
         @media (max-width: 768px) {
+            .admin-container {
+                margin: 1rem auto 1.5rem;
+                padding: 0 0.75rem;
+            }
+
+            .admin-content {
+                border-radius: 12px;
+            }
+
             .admin-tabs {
                 padding: 0 0.5rem;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
+                overflow-x: visible;
+                flex-wrap: wrap;
             }
             .tab-btn {
                 padding: 12px 14px;
                 font-size: 0.82rem;
-                flex-shrink: 0;
+                flex: 1 1 calc(50% - 0.5rem);
+                min-width: 145px;
             }
             .tab-content {
                 padding: 1.25rem;
             }
+
+            .news-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+                padding: 0.9rem;
+            }
+
+            .news-actions {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .btn-edit,
+            .btn-delete {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .form-actions .btn-primary,
+            .form-actions .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+
             .gallery-image-item {
                 flex-direction: column;
                 align-items: stretch;
@@ -895,9 +1024,81 @@
             .image-actions {
                 flex-direction: row;
                 justify-content: center;
+                flex-wrap: wrap;
             }
-            .header-actions { gap: 0.25rem; }
-            .btn-header-action span { display: none; }
+
+            .image-actions .btn {
+                min-width: 120px;
+                flex: 1;
+            }
+
+            .news-preview-card {
+                padding: 1.25rem;
+            }
+
+            .header-actions {
+                gap: 0.35rem;
+                width: 100%;
+                overflow-x: visible;
+                flex-wrap: wrap;
+                justify-content: flex-start;
+                padding-bottom: 2px;
+            }
+
+            .header-actions > span {
+                display: none;
+            }
+
+            .btn-header-action,
+            .logout-btn {
+                flex: 1 1 auto;
+                white-space: nowrap;
+                justify-content: center;
+            }
+
+            .btn-header-action span {
+                display: inline;
+            }
+
+            .stats-bars {
+                gap: 5px;
+            }
+
+            .stats-bar-label {
+                font-size: 0.62rem;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .tab-btn {
+                padding: 10px 12px;
+                font-size: 0.78rem;
+                gap: 6px;
+                flex: 1 1 100%;
+            }
+
+            .tab-btn i {
+                font-size: 0.95rem;
+                width: auto;
+            }
+
+            .news-form-section,
+            .gallery-admin-section {
+                padding: 1rem;
+            }
+
+            .image-upload-area {
+                padding: 1.5rem 1rem;
+            }
+
+            .image-upload-area i {
+                font-size: 2.2rem;
+            }
+
+            .admin-auth-card {
+                padding: 1.25rem;
+                border-radius: 14px;
+            }
         }
 
         /* Mobile Performance Optimization - Admin Panel */
@@ -1167,6 +1368,7 @@
             GALLERY: 'galleryImages',
             GALLERY_SETTINGS: 'gallerySettings',
             ROLE: 'computec_admin_role',
+            ACTIVE_ROLE: 'computec_admin_active_role',
             ACTIVITY: 'computec_admin_activity',
             SNAPSHOTS: 'computec_admin_snapshots',
             DRAFT_PREFIX: 'computec_admin_draft_'
@@ -1195,12 +1397,128 @@
         let sessionTimer = null;
         let undoTimers = {};
         let statsPollTimer = null;
+        let statsRealtimeClient = null;
+        let statsRealtimeChannel = null;
+        let statsRealtimeLibPromise = null;
+        let statsRealtimeRefreshTimer = null;
+        const STATS_REFRESH_MS = 10000;
 
         function stopStatsPolling() {
             if (statsPollTimer) {
                 clearInterval(statsPollTimer);
                 statsPollTimer = null;
             }
+
+            if (statsRealtimeRefreshTimer) {
+                clearTimeout(statsRealtimeRefreshTimer);
+                statsRealtimeRefreshTimer = null;
+            }
+
+            if (statsRealtimeClient && statsRealtimeChannel) {
+                try {
+                    statsRealtimeClient.removeChannel(statsRealtimeChannel);
+                } catch (error) {
+                    console.warn('No se pudo cerrar el canal realtime de estadisticas.', error);
+                }
+                statsRealtimeChannel = null;
+            }
+
+            setStatsSyncMode('Modo: Inactivo', 'fallback');
+        }
+
+        function scheduleRealtimeStatsRefresh() {
+            if (statsRealtimeRefreshTimer) {
+                clearTimeout(statsRealtimeRefreshTimer);
+            }
+
+            statsRealtimeRefreshTimer = setTimeout(() => {
+                statsRealtimeRefreshTimer = null;
+                loadStatsDashboard();
+            }, 250);
+        }
+
+        function loadSupabaseRealtimeLibrary() {
+            if (window.supabase && typeof window.supabase.createClient === 'function') {
+                return Promise.resolve(true);
+            }
+
+            if (statsRealtimeLibPromise) {
+                return statsRealtimeLibPromise;
+            }
+
+            statsRealtimeLibPromise = new Promise((resolve) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+                script.defer = true;
+                script.onload = () => resolve(!!(window.supabase && typeof window.supabase.createClient === 'function'));
+                script.onerror = () => resolve(false);
+                document.head.appendChild(script);
+            });
+
+            return statsRealtimeLibPromise;
+        }
+
+        async function ensureStatsRealtimeClient() {
+            if (statsRealtimeClient) {
+                return statsRealtimeClient;
+            }
+
+            const pub = getSupabasePublicHeaders();
+            if (!pub) {
+                return null;
+            }
+
+            const libOk = await loadSupabaseRealtimeLibrary();
+            if (!libOk) {
+                return null;
+            }
+
+            statsRealtimeClient = window.supabase.createClient(pub.url, pub.headers.apikey, {
+                auth: {
+                    persistSession: false,
+                    autoRefreshToken: false
+                }
+            });
+
+            return statsRealtimeClient;
+        }
+
+        async function startStatsRealtimeSubscription() {
+            const client = await ensureStatsRealtimeClient();
+            if (!client) {
+                return false;
+            }
+
+            if (statsRealtimeChannel) {
+                return true;
+            }
+
+            statsRealtimeChannel = client
+                .channel('admin-stats-realtime')
+                .on(
+                    'postgres_changes',
+                    { event: 'INSERT', schema: 'public', table: 'page_visit_events' },
+                    () => scheduleRealtimeStatsRefresh()
+                )
+                .on(
+                    'postgres_changes',
+                    { event: 'INSERT', schema: 'public', table: 'page_stats_daily' },
+                    () => scheduleRealtimeStatsRefresh()
+                )
+                .on(
+                    'postgres_changes',
+                    { event: 'UPDATE', schema: 'public', table: 'page_stats_daily' },
+                    () => scheduleRealtimeStatsRefresh()
+                )
+                .subscribe((status) => {
+                    if (status === 'SUBSCRIBED') {
+                        setStatsSyncMode('Modo: Realtime + respaldo 10s', 'ok');
+                    } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+                        setStatsSyncMode('Modo: Polling 10s (fallback)', 'fallback');
+                    }
+                });
+
+            return true;
         }
 
         function getSupabasePublicHeaders() {
@@ -1218,16 +1536,58 @@
             };
         }
 
+        function setStatsConnectionState(state, label) {
+            const pill = document.getElementById('stats-connection-pill');
+            if (!pill) {
+                return;
+            }
+
+            pill.classList.remove('is-loading', 'is-ok', 'is-error');
+
+            if (state === 'loading') {
+                pill.classList.add('is-loading');
+            } else if (state === 'ok') {
+                pill.classList.add('is-ok');
+            } else if (state === 'error') {
+                pill.classList.add('is-error');
+            }
+
+            pill.textContent = label;
+        }
+
+        function setStatsSyncMode(label, state) {
+            const pill = document.getElementById('stats-sync-mode');
+            if (!pill) {
+                return;
+            }
+
+            pill.classList.remove('is-loading', 'is-ok', 'is-fallback');
+            if (state === 'loading') {
+                pill.classList.add('is-loading');
+            } else if (state === 'ok') {
+                pill.classList.add('is-ok');
+            } else if (state === 'fallback') {
+                pill.classList.add('is-fallback');
+            }
+            pill.textContent = label;
+        }
+
         async function loadStatsDashboard() {
             const pub = getSupabasePublicHeaders();
             const msg = document.getElementById('stats-conn-msg');
             const updated = document.getElementById('stats-updated-at');
+            let rpcLatencyMs = null;
+            let tableLatencyMs = null;
+            let failedStage = null;
+
+            setStatsConnectionState('loading', 'Conectando...');
 
             if (!pub) {
                 if (msg) {
                     msg.style.display = 'block';
                     msg.textContent = 'No hay configuración de Supabase en esta sesión.';
                 }
+                setStatsConnectionState('error', 'Sin configuracion');
                 return;
             }
 
@@ -1236,13 +1596,16 @@
             }
 
             try {
+                const rpcStartedAt = performance.now();
                 const sumRes = await fetch(pub.url + '/rest/v1/rpc/get_site_analytics_summary', {
                     method: 'POST',
                     headers: pub.headers,
                     body: '{}'
                 });
+                rpcLatencyMs = Math.max(1, Math.round(performance.now() - rpcStartedAt));
 
                 if (!sumRes.ok) {
+                    failedStage = 'RPC';
                     throw new Error('RPC get_site_analytics_summary: ' + sumRes.status);
                 }
 
@@ -1267,12 +1630,15 @@
                 setNum('stats-kpi-hour', summary.visits_last_hour);
                 setNum('stats-kpi-unique', summary.today_unique_visitors);
 
+                const tableStartedAt = performance.now();
                 const dayRes = await fetch(
                     pub.url + '/rest/v1/page_stats_daily?select=stat_date,visit_count,updated_at&order=stat_date.desc&limit=21',
                     { headers: { apikey: pub.headers.apikey, Authorization: pub.headers.Authorization } }
                 );
+                tableLatencyMs = Math.max(1, Math.round(performance.now() - tableStartedAt));
 
                 if (!dayRes.ok) {
+                    failedStage = 'TABLA';
                     throw new Error('GET page_stats_daily: ' + dayRes.status);
                 }
 
@@ -1284,12 +1650,96 @@
                     const t = new Date();
                     updated.textContent = 'Actualizado: ' + t.toLocaleString('es-PR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                 }
+                const rpcText = (rpcLatencyMs ?? '—') + ' ms';
+                const tableText = (tableLatencyMs ?? '—') + ' ms';
+                setStatsConnectionState('ok', 'Conectado (RPC ' + rpcText + ' | Tabla ' + tableText + ')');
             } catch (err) {
                 console.warn('Estadísticas:', err);
                 if (msg) {
                     msg.style.display = 'block';
-                    msg.innerHTML = 'No se pudieron cargar las estadísticas. ¿Ejecutaste <code>database/page_analytics.sql</code> en Supabase? Comprueba la consola del navegador.';
+                    msg.innerHTML = 'No se pudieron cargar las estadísticas. ¿Ejecutaste <code>database/page_analytic.sql</code> en Supabase? Comprueba la consola del navegador.';
                 }
+                const rpcText = (rpcLatencyMs ?? '—') + ' ms';
+                const tableText = (tableLatencyMs ?? '—') + ' ms';
+                if (failedStage === 'RPC') {
+                    setStatsConnectionState('error', 'Error RPC (' + rpcText + ')');
+                } else if (failedStage === 'TABLA') {
+                    setStatsConnectionState('error', 'Error Tabla (RPC ' + rpcText + ' | Tabla ' + tableText + ')');
+                } else {
+                    setStatsConnectionState('error', 'Error de conexion');
+                }
+            }
+        }
+
+        async function recordTestVisitForStats() {
+            const pub = getSupabasePublicHeaders();
+            const msg = document.getElementById('stats-conn-msg');
+            if (!pub) {
+                showNotification('No hay configuracion de Supabase para registrar visitas.', 'error');
+                return;
+            }
+
+            const parseRpcError = async (response) => {
+                let raw = '';
+                let detail = '';
+                try {
+                    raw = await response.text();
+                    const parsed = JSON.parse(raw);
+                    detail = [parsed.message, parsed.details, parsed.hint].filter(Boolean).join(' | ');
+                } catch (e) {
+                    detail = raw || 'Sin detalle';
+                }
+                return 'HTTP ' + response.status + ': ' + detail;
+            };
+
+            const callRecordVisit = async (payload) => {
+                const res = await fetch(pub.url + '/rest/v1/rpc/record_site_visit', {
+                    method: 'POST',
+                    headers: {
+                        ...pub.headers,
+                        Prefer: 'return=minimal'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    return { ok: true };
+                }
+
+                const errorText = await parseRpcError(res);
+                return { ok: false, errorText };
+            };
+
+            try {
+                setStatsConnectionState('loading', 'Registrando visita...');
+                const visitorId = 'admin_test_' + Date.now();
+                let result = await callRecordVisit({
+                    p_path: '/admin-test',
+                    p_visitor_id: visitorId
+                });
+
+                // Reintento usando defaults de la funcion por compatibilidad.
+                if (!result.ok) {
+                    result = await callRecordVisit({});
+                }
+
+                if (!result.ok) {
+                    throw new Error(result.errorText || 'Fallo desconocido al registrar visita.');
+                }
+
+                await loadStatsDashboard();
+                if (msg) {
+                    msg.style.display = 'none';
+                }
+                showNotification('Visita de prueba registrada.', 'success', 1800);
+            } catch (error) {
+                console.error('No se pudo registrar visita de prueba:', error);
+                setStatsConnectionState('error', 'Error visita de prueba');
+                if (msg) {
+                    msg.style.display = 'block';
+                    msg.innerHTML = 'Fallo en <code>record_site_visit</code>: ' + String(error.message || error);
+                }
+                showNotification('No se pudo registrar la visita de prueba. Revisa el mensaje de conexion.', 'error');
             }
         }
 
@@ -1373,8 +1823,18 @@
             } else if (tabName === 'security') {
                 refreshSecurityStatus();
             } else if (tabName === 'stats') {
+                setStatsSyncMode('Modo: Conectando...', 'loading');
                 loadStatsDashboard();
-                statsPollTimer = setInterval(loadStatsDashboard, 3000);
+                startStatsRealtimeSubscription().then((enabled) => {
+                    if (!enabled) {
+                        setStatsSyncMode('Modo: Polling 10s (fallback)', 'fallback');
+                        statsPollTimer = setInterval(loadStatsDashboard, STATS_REFRESH_MS);
+                        return;
+                    }
+
+                    // Respaldo ligero por si realtime se interrumpe.
+                    statsPollTimer = setInterval(loadStatsDashboard, STATS_REFRESH_MS);
+                });
             }
         }
 
@@ -1418,6 +1878,7 @@
                 setAdminAuthGateVisible(false);
                 usernameInput.value = '';
                 passwordInput.value = '';
+                applyRoleUI();
                 refreshSecurityStatus();
                 updateMetrics();
                 showNotification('Acceso administrativo concedido.', 'success');
@@ -1428,13 +1889,75 @@
             }
         }
 
-        function getCurrentRole() {
+        function getSessionRole() {
             if (!SessionManager.isAuthenticated()) {
                 return null;
             }
 
             const credentials = Authenticator.getCurrentCredentials ? Authenticator.getCurrentCredentials() : { role: 'superadmin' };
             return credentials && ROLE_PERMISSIONS[credentials.role] ? credentials.role : null;
+        }
+
+        function getCurrentRole() {
+            const sessionRole = getSessionRole();
+            if (!sessionRole) {
+                return null;
+            }
+
+            let selectedRole = null;
+            try {
+                selectedRole = sessionStorage.getItem(STORAGE_KEYS.ACTIVE_ROLE);
+            } catch (error) {
+                selectedRole = null;
+            }
+
+            if (!selectedRole || !ROLE_PERMISSIONS[selectedRole]) {
+                return sessionRole;
+            }
+
+            if (sessionRole !== 'superadmin' && selectedRole !== sessionRole) {
+                return sessionRole;
+            }
+
+            return selectedRole;
+        }
+
+        function setCurrentRole(nextRole) {
+            const sessionRole = getSessionRole();
+            if (!sessionRole || !ROLE_PERMISSIONS[nextRole]) {
+                return false;
+            }
+
+            if (sessionRole !== 'superadmin' && nextRole !== sessionRole) {
+                return false;
+            }
+
+            try {
+                sessionStorage.setItem(STORAGE_KEYS.ACTIVE_ROLE, nextRole);
+            } catch (error) {
+                console.warn('No se pudo guardar el rol activo en sesión.', error);
+            }
+
+            return true;
+        }
+
+        function bindRoleSelector() {
+            const roleSelector = document.getElementById('role-selector');
+            if (!roleSelector) {
+                return;
+            }
+
+            roleSelector.addEventListener('change', function (event) {
+                const selectedRole = event.target.value;
+                const changed = setCurrentRole(selectedRole);
+                applyRoleUI();
+
+                if (changed) {
+                    showNotification('Rol activo cambiado a ' + selectedRole + '.', 'info', 2000);
+                } else {
+                    showNotification('No se pudo cambiar el rol activo.', 'error', 2200);
+                }
+            });
         }
 
         function hasPermission(permission) {
@@ -2545,6 +3068,11 @@
 
         function logout() {
             Authenticator.logout();
+            try {
+                sessionStorage.removeItem(STORAGE_KEYS.ACTIVE_ROLE);
+            } catch (error) {
+                console.warn('No se pudo limpiar el rol activo.', error);
+            }
             setAdminAuthGateVisible(true);
             showNotification('Sesión cerrada.', 'info');
         }
@@ -2556,6 +3084,7 @@
 
             try {
                 sessionStorage.setItem('computec_lock_admin_on_home', '1');
+                sessionStorage.removeItem(STORAGE_KEYS.ACTIVE_ROLE);
             } catch (error) {
                 console.warn('No se pudo marcar el bloqueo al volver al inicio.', error);
             }
@@ -2666,6 +3195,7 @@
 
         function applyRoleUI() {
             const role = getCurrentRole();
+            const sessionRole = getSessionRole();
             const roleBadge = document.getElementById('current-role-badge');
             if (roleBadge) {
                 roleBadge.textContent = role || 'bloqueado';
@@ -2674,6 +3204,10 @@
             const roleSelector = document.getElementById('role-selector');
             if (roleSelector) {
                 roleSelector.value = role || 'superadmin';
+                roleSelector.disabled = !sessionRole || sessionRole !== 'superadmin';
+                roleSelector.style.cursor = roleSelector.disabled ? 'not-allowed' : 'pointer';
+                roleSelector.style.background = roleSelector.disabled ? '#e2e8f0' : '#ffffff';
+                roleSelector.style.color = roleSelector.disabled ? '#475569' : '#0f172a';
             }
 
             const importBtn = document.querySelector('button[onclick="importData()"]');
@@ -2695,6 +3229,15 @@
                 if (element) element.style.display = allowed ? '' : 'none';
                 if (nav) nav.style.display = allowed ? '' : 'none';
             });
+
+            const activeNav = document.querySelector('.tab-btn.active');
+            if (activeNav && activeNav.style.display === 'none') {
+                const visibleNav = Array.from(document.querySelectorAll('.tab-btn')).find(btn => btn.style.display !== 'none');
+                if (visibleNav) {
+                    const target = (visibleNav.dataset.target || 'tab-news').replace('tab-', '');
+                    openTab(target, visibleNav);
+                }
+            }
         }
 
         function attachChangeTracking() {
@@ -2883,7 +3426,7 @@
                     <div style="display:flex;align-items:center;gap:0.5rem;">
                         <span style="font-size:0.85rem;color:#334155;">Rol activo:</span>
                         <span id="current-role-badge" style="background:#0ea5e9;color:white;padding:3px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;">superadmin</span>
-                        <select id="role-selector" disabled aria-label="Rol actual de la sesión" style="padding:6px 10px;border:2px solid #e2e8f0;border-radius:8px;background:#e2e8f0;color:#475569;cursor:not-allowed;">
+                        <select id="role-selector" aria-label="Rol activo del panel" style="padding:6px 10px;border:2px solid #e2e8f0;border-radius:8px;background:#ffffff;color:#0f172a;cursor:pointer;">
                             <option value="superadmin">superadmin</option>
                             <option value="editor">editor</option>
                             <option value="moderador">moderador</option>
@@ -2912,12 +3455,15 @@
                             </h3>
                             <p style="margin:0;color:#64748b;font-size:0.9rem;max-width:52rem;">
                                 Visitas registradas desde la página principal (index). Los totales por día usan la hora de <strong>Puerto Rico</strong>.
-                                Esta pestaña se actualiza sola cada 3 segundos mientras la tengas abierta.
+                                Esta pestaña se actualiza sola cada 10 segundos mientras la tengas abierta.
                             </p>
                         </div>
                         <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
-                            <span class="stats-live-pill"><span class="stats-live-dot" aria-hidden="true"></span> Tiempo real (3s)</span>
+                            <span class="stats-live-pill"><span class="stats-live-dot" aria-hidden="true"></span> Tiempo real (10s)</span>
+                            <span id="stats-sync-mode" class="stats-mode-pill">Modo: Iniciando...</span>
+                            <span id="stats-connection-pill" class="stats-conn-pill">Esperando datos</span>
                             <button type="button" class="btn-secondary" onclick="loadStatsDashboard()"><i class="fa-solid fa-rotate"></i> Actualizar ahora</button>
+                            <button type="button" class="btn-secondary" onclick="recordTestVisitForStats()"><i class="fa-solid fa-vial"></i> Visita de prueba</button>
                         </div>
                     </div>
                     <p id="stats-conn-msg" class="stats-hint" style="display:none;"></p>
@@ -2940,7 +3486,7 @@
                         </table>
                     </div>
                     <p class="stats-hint" style="background:#eff6ff;border-color:#93c5fd;color:#1e3a8a;">
-                        <strong>Primera vez:</strong> en Supabase, ejecuta el script <code>database/page_analytics.sql</code>. Luego abre el sitio público en otra pestaña para generar visitas de prueba.
+                        <strong>Primera vez:</strong> en Supabase, ejecuta el script <code>database/page_analytic.sql</code>. Para tiempo real, en Database > Replication agrega <code>page_visit_events</code> y <code>page_stats_daily</code> al publication <code>supabase_realtime</code>. Luego abre el sitio publico en otra pestana o usa "Visita de prueba" para generar datos.
                     </p>
                 </div>
             `;
@@ -3005,7 +3551,7 @@
 
             const roleSelector = document.getElementById('role-selector');
             if (roleSelector) {
-                roleSelector.setAttribute('title', 'El rol depende de la sesión autenticada.');
+                roleSelector.setAttribute('title', 'Superadmin puede cambiar el rol activo de esta sesión.');
             }
         }
 
@@ -3029,6 +3575,7 @@
         function bootstrap() {
             enhanceHeader();
             injectMetricsAndSecurityTabs();
+            bindRoleSelector();
             addDynamicFieldsAndFilters();
             bindSecurityForm();
             attachChangeTracking();
@@ -3103,8 +3650,23 @@
             adminAuthForm.addEventListener('submit', handleAdminPageLogin);
         }
 
-        checkAuth();
+        function syncAuthAndRoleUI() {
+            const authenticated = checkAuth();
+            if (authenticated) {
+                applyRoleUI();
+                refreshSecurityStatus();
+            }
+        }
+
         bootstrap();
+        syncAuthAndRoleUI();
+
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                syncAuthAndRoleUI();
+            }
+        });
+
         runScheduledPublication();
         setInterval(runScheduledPublication, 60000);
         renderNewsList();

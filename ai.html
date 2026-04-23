@@ -229,5 +229,14 @@
             </p>
         </main>
     </div>
+    <script>
+        (function () {
+            const externalUrl = 'https://computec-ai-tutor-31755169330.us-west1.run.app/';
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+            if (isMobile && window.location.search !== '?desktop=1') {
+                window.location.replace(externalUrl);
+            }
+        })();
+    </script>
 </body>
 </html>

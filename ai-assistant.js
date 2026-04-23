@@ -10,6 +10,12 @@
     const HISTORY_LIMIT = 50;
     const SCORE_THRESHOLD = 2.2;
 
+    const GEMINI_PROXY_URL = 'https://bfrpiyswqyozvdznihih.supabase.co/functions/v1/gemini-proxy';
+    const GEMINI_SYSTEM_PROMPT = `Eres IA COMPUTEC, el asistente virtual oficial de la Escuela Superior Vocacional Pablo Colón Berdécía (COMPUTEC) en Barranquitas, Puerto Rico.
+Respondes preguntas sobre cursos de tecnología, horarios, inscripciones, servicios técnicos, proyectos estudiantiles y actividades escolares.
+Mantiene un tono amigable, profesional y conciso. Responde siempre en español. No inventes información que no conoces; en ese caso, sugiere contactar la escuela.`;
+    const TRAINING_CONTEXT_LIMIT = 4;
+
     const STOPWORDS = new Set([
         'a','al','algo','algun','alguna','algunas','alguno','algunos','ante','aqui',
         'como','con','cual','cuales','cuando','de','del','donde','el','ella','ellas',
@@ -511,6 +517,79 @@ Ver detalles en la sección <a href="#cursos">Cursos · Oportunidades</a>.`,
         } catch (_) { return []; }
     }
 
+    function stripHtml(value) {
+        return String(value || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+
+    function buildKnowledgeContext(userText) {
+        const normalized = normalize(userText);
+        if (!normalized) return '';
+
+        const tokens = tokenize(normalized);
+        const expanded = expandTokens(tokens);
+
+        const ranked = KB
+            .map(entry => ({
+                entry,
+                score: scoreEntry(entry, tokens, expanded, normalized)
+            }))
+            .filter(item => item.score > 0)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, TRAINING_CONTEXT_LIMIT)
+            .map(item => {
+                const title = item.entry.id || 'tema';
+                const answer = stripHtml(item.entry.answer || '');
+                return `- ${title}: ${answer}`;
+            });
+
+        return ranked.length
+            ? `Contexto institucional de COMPUTEC (usar como fuente principal):\n${ranked.join('\n')}`
+            : '';
+    }
+
+    async function queryGemini(text) {
+        const supabasePublic = window.COMPUTEC_SUPABASE_PUBLIC || {};
+        const anonKey = supabasePublic.anonKey || '';
+        const kbContext = buildKnowledgeContext(text);
+        const contents = state.history
+            .filter(m => m.role === 'user' || m.role === 'bot')
+            .slice(-10)
+            .map(m => ({
+                role: m.role === 'user' ? 'user' : 'model',
+                parts: [{ text: m.role === 'user' ? m.text : stripHtml(m.html || '') }]
+            }));
+        contents.push({
+            role: 'user',
+            parts: [{
+                text: kbContext
+                    ? `${kbContext}\n\nPregunta del usuario: ${text}`
+                    : `Pregunta del usuario: ${text}`
+            }]
+        });
+
+        const body = {
+            system_instruction: { parts: [{ text: GEMINI_SYSTEM_PROMPT }] },
+            contents
+        };
+
+        const res = await fetch(GEMINI_PROXY_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(anonKey ? { apikey: anonKey, Authorization: `Bearer ${anonKey}` } : {})
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (!res.ok) {
+            throw new Error(`Gemini API error ${res.status}`);
+        }
+
+        const data = await res.json();
+        const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'No pude obtener una respuesta. Intenta de nuevo.';
+        return answer;
+    }
+
     function submitUser(rawText) {
         const text = String(rawText || '').trim();
         if (!text) return;
@@ -520,16 +599,25 @@ Ver detalles en la sección <a href="#cursos">Cursos · Oportunidades</a>.`,
 
         const typingEl = showTyping();
         clearTimeout(typingTimer);
-        const result = query(text);
-        const delay = 350 + Math.min(900, result.answer.length * 3);
-        typingTimer = setTimeout(() => {
-            typingEl.remove();
-            renderMessage('bot', result.answer);
-            renderChips(result.chips);
-            state.history.push({ role: 'bot', html: result.answer, chips: result.chips, ts: Date.now() });
-            saveHistory();
-            if (!isOpen) bumpUnread();
-        }, delay);
+
+        queryGemini(text)
+            .then(answer => {
+                typingEl.remove();
+                renderMessage('bot', escapeHtml(answer).replace(/\n/g, '<br>'));
+                renderChips(['¿Qué cursos hay?','¿Cómo me inscribo?','Contacto']);
+                state.history.push({ role: 'bot', html: answer, chips: [], ts: Date.now() });
+                saveHistory();
+                if (!isOpen) bumpUnread();
+            })
+            .catch(err => {
+                typingEl.remove();
+                const fallback = query(text);
+                renderMessage('bot', `${fallback.answer}<br><small>Modo local activado temporalmente.</small>`);
+                renderChips(fallback.chips);
+                state.history.push({ role: 'bot', html: fallback.answer, chips: fallback.chips, ts: Date.now() });
+                saveHistory();
+                console.error('Gemini error:', err);
+            });
     }
 
     function bumpUnread() {

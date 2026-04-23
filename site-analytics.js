@@ -1,6 +1,6 @@
 /**
  * Registra visitas al sitio público vía Supabase RPC (record_site_visit).
- * Requiere ejecutar database/page_analytics.sql en el proyecto Supabase.
+ * Requiere ejecutar database/page_analytic.sql en el proyecto Supabase.
  */
 (function () {
     if (typeof window === 'undefined' || typeof document === 'undefined') {

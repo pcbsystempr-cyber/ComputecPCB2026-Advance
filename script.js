@@ -121,11 +121,77 @@ function initializeProjects() {
             category: 'Programación',
             description: 'Plataforma web con recursos, información y servicios de apoyo estudiantil.',
             status: 'published'
+        },
+        {
+            id: 4,
+            title: 'DECA Coop',
+            student: 'Estudiantes de COMPUTEC',
+            year: '2026',
+            category: 'Programación',
+            description: 'Tienda en línea estudiantil con productos, ofertas y experiencia de compra digital.',
+            status: 'published'
+        },
+        {
+            id: 5,
+            title: 'Centro de Impresiones Escolares',
+            student: 'Estudiantes de COMPUTEC',
+            year: '2026',
+            category: 'Programación',
+            description: 'Servicio de impresiones escolares en línea para estudiantes y personal de COMPUTEC.',
+            status: 'published'
+        },
+        {
+            id: 6,
+            title: 'Solicitud de Servicio Técnico',
+            student: 'Estudiantes de COMPUTEC',
+            year: '2026',
+            category: 'Programación',
+            description: 'Plataforma para gestionar y solicitar servicios técnicos dentro de la escuela.',
+            status: 'published'
+        },
+        {
+            id: 7,
+            title: 'ElectroDashboard PCB',
+            student: 'Estudiantes de COMPUTEC',
+            year: '2026',
+            category: 'Programación',
+            description: 'Dashboard interactivo para monitoreo y gestión de herramientas eléctricas escolares.',
+            status: 'published'
         }
     ];
 
-    if (!localStorage.getItem('projects')) {
+    const storedProjectsRaw = localStorage.getItem('projects');
+    if (!storedProjectsRaw) {
         localStorage.setItem('projects', JSON.stringify(defaultProjects));
+        return;
+    }
+
+    let storedProjects = [];
+    try {
+        storedProjects = JSON.parse(storedProjectsRaw);
+        if (!Array.isArray(storedProjects)) {
+            storedProjects = [];
+        }
+    } catch (error) {
+        storedProjects = [];
+    }
+
+    const normalizeTitle = (value) => String(value || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim();
+
+    const existingTitles = new Set(storedProjects.map(item => normalizeTitle(item && item.title)));
+    const missingDefaults = defaultProjects.filter(item => !existingTitles.has(normalizeTitle(item.title)));
+
+    if (missingDefaults.length) {
+        const maxId = storedProjects.reduce((max, item) => Math.max(max, Number(item && item.id) || 0), 0);
+        const defaultsWithIds = missingDefaults.map((item, index) => ({
+            ...item,
+            id: maxId + index + 1
+        }));
+        localStorage.setItem('projects', JSON.stringify(storedProjects.concat(defaultsWithIds)));
     }
 }
 
@@ -245,6 +311,26 @@ function renderProjects() {
     const projectsGrid = document.querySelector('.projects-grid');
     if (!projectsGrid) return;
 
+    const projectLinksByTitle = {
+        'pcb system': 'https://pcbsystempr-cyber.github.io/pcbsystem2026/',
+        'casa abierta': 'https://pcbsystempr-cyber.github.io/Casa-Abierta/',
+        'unidad de apoyo socioemocional': 'https://pcbsystempr-cyber.github.io/Unidad_de_Apoyo_Socioemocional_Prueba/',
+        'deca coop': 'https://pcbsystempr-cyber.github.io/DECA_de_Barranquitas_up/',
+        'centro de impresiones escolares': 'https://pcbsystempr-cyber.github.io/CopiasPCB/',
+        'solicitud de servicio tecnico': 'https://pcbsystempr-cyber.github.io/Servicio-Tecnico/',
+        'electrodashboard pcb': 'https://pcbsystempr-cyber.github.io/electricity_tool_pcb/',
+    };
+
+    const resolveProjectLink = (project) => {
+        const title = String(project?.title || '')
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .trim();
+
+        return projectLinksByTitle[title] || 'https://github.com/pcbsystempr-cyber';
+    };
+
     const projects = getProjects()
         .filter(item => (item.status || 'published') === 'published')
         .sort((a, b) => (parseInt(b.year, 10) || 0) - (parseInt(a.year, 10) || 0));
@@ -253,7 +339,9 @@ function renderProjects() {
         return;
     }
 
-    projectsGrid.innerHTML = projects.map(item => `
+    projectsGrid.innerHTML = projects.map(item => {
+        const projectLink = resolveProjectLink(item);
+        return `
         <div class="project-card featured-project">
             <div class="project-badge"><i class="fa-solid fa-code"></i> ${escapeHtml(item.category || 'Proyecto')}</div>
             <div class="project-image">
@@ -266,10 +354,11 @@ function renderProjects() {
                 <div class="project-tech">
                     <span class="tech-tag">${escapeHtml(item.category || 'Tecnología')}</span>
                 </div>
-                <button class="view-project-btn" type="button" onclick="scrollToSection('contacto')">Solicitar Información</button>
+                <button class="view-project-btn" type="button" onclick="window.open('${projectLink}', '_blank')">Ver página</button>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
 }
 
 function renderServices() {
@@ -1263,101 +1352,6 @@ document.querySelectorAll('.faq-question').forEach(question => {
         }
     });
 });
-
-(function setupFaqFilters() {
-    const searchInput = document.getElementById('faqSearch');
-    const clearBtn = document.getElementById('faqSearchClear');
-    const chips = document.querySelectorAll('.faq-chip');
-    const items = document.querySelectorAll('.faq-item');
-    const empty = document.getElementById('faqEmpty');
-    const resetBtn = document.getElementById('faqReset');
-    if (!searchInput || !items.length) return;
-
-    let activeCategory = 'todas';
-
-    function normalizeFaq(text) {
-        return String(text || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    }
-
-    function applyFilters() {
-        const raw = searchInput.value.trim();
-        const query = normalizeFaq(raw);
-        let visible = 0;
-
-        items.forEach(item => {
-            const category = item.getAttribute('data-category') || '';
-            const titleEl = item.querySelector('.faq-question h3');
-            const answerEl = item.querySelector('.faq-answer p');
-            const title = titleEl ? titleEl.textContent : '';
-            const answer = answerEl ? answerEl.textContent : '';
-            const haystack = normalizeFaq(title + ' ' + answer);
-
-            const matchesCat = activeCategory === 'todas' || category === activeCategory;
-            const matchesQuery = !query || haystack.includes(query);
-
-            if (matchesCat && matchesQuery) {
-                item.hidden = false;
-                visible++;
-                if (titleEl) titleEl.innerHTML = highlight(title, raw);
-            } else {
-                item.hidden = true;
-                item.classList.remove('active');
-                const q = item.querySelector('.faq-question');
-                if (q) q.setAttribute('aria-expanded', 'false');
-                if (titleEl) titleEl.textContent = title;
-            }
-        });
-
-        if (empty) empty.hidden = visible !== 0;
-        if (clearBtn) clearBtn.hidden = raw.length === 0;
-    }
-
-    function highlight(text, raw) {
-        if (!raw) return escapeFaqHtml(text);
-        const normText = normalizeFaq(text);
-        const normQ = normalizeFaq(raw);
-        const idx = normText.indexOf(normQ);
-        if (idx < 0) return escapeFaqHtml(text);
-        const before = text.slice(0, idx);
-        const match = text.slice(idx, idx + raw.length);
-        const after = text.slice(idx + raw.length);
-        return escapeFaqHtml(before) + '<mark class="faq-highlight">' + escapeFaqHtml(match) + '</mark>' + escapeFaqHtml(after);
-    }
-
-    function escapeFaqHtml(s) {
-        return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    }
-
-    searchInput.addEventListener('input', applyFilters);
-    if (clearBtn) clearBtn.addEventListener('click', () => {
-        searchInput.value = '';
-        searchInput.focus();
-        applyFilters();
-    });
-
-    chips.forEach(chip => {
-        chip.addEventListener('click', () => {
-            activeCategory = chip.getAttribute('data-category') || 'todas';
-            chips.forEach(c => {
-                const on = c === chip;
-                c.classList.toggle('active', on);
-                c.setAttribute('aria-selected', on ? 'true' : 'false');
-            });
-            applyFilters();
-        });
-    });
-
-    if (resetBtn) resetBtn.addEventListener('click', () => {
-        searchInput.value = '';
-        activeCategory = 'todas';
-        chips.forEach(c => {
-            const on = c.getAttribute('data-category') === 'todas';
-            c.classList.toggle('active', on);
-            c.setAttribute('aria-selected', on ? 'true' : 'false');
-        });
-        applyFilters();
-    });
-})();
 
 // Welcome Pop-up (opcional: solo si existen los nodos en el HTML)
 const welcomePopup = document.getElementById('welcomePopup');
