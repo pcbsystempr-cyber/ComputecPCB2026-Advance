@@ -16,8 +16,8 @@
 // ============================================
 
 const AUTH_CONFIG = {
-    // Tiempo de expiración de sesión (30 minutos en milisegundos)
-    SESSION_TIMEOUT: 30 * 60 * 1000,
+    // Tiempo de expiración de sesión (20 minutos en milisegundos)
+    SESSION_TIMEOUT: 20 * 60 * 1000,
     
     // Máximo de intentos de login permitidos
     MAX_LOGIN_ATTEMPTS: 5,
@@ -218,6 +218,24 @@ const AuthDatabase = {
         };
 
         return this.callRpc('update_admin_credentials', payload);
+    },
+
+    validateRolePassword: async function(role, passwordHash) {
+        const data = await this.callRpc('validate_role_password', {
+            p_role: role,
+            p_password_hash: passwordHash
+        });
+        // La RPC devuelve jsonb: { valid: true } o { valid: false, message: "..." }
+        return data && data.valid === true;
+    },
+
+    updateRolePassword: async function(adminUsername, adminPasswordHash, targetRole, newPasswordHash) {
+        return this.callRpc('update_role_password', {
+            p_admin_username: adminUsername,
+            p_admin_password_hash: adminPasswordHash,
+            p_target_role: targetRole,
+            p_new_password_hash: newPasswordHash
+        });
     }
 };
 
@@ -284,7 +302,7 @@ const SessionManager = {
                 return false;
             }
 
-            if (!['superadmin', 'editor', 'moderador'].includes(session.role)) {
+            if (!['superadmin', 'editor', 'media_manager', 'moderator', 'viewer'].includes(session.role)) {
                 this.destroySession();
                 return false;
             }

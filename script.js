@@ -157,6 +157,24 @@ function initializeProjects() {
             category: 'Programación',
             description: 'Dashboard interactivo para monitoreo y gestión de herramientas eléctricas escolares.',
             status: 'published'
+        },
+        {
+            id: 8,
+            title: 'Security',
+            student: 'Estudiantes de COMPUTEC',
+            year: '2026',
+            category: 'Programación',
+            description: 'Proyecto estudiantil de ciberseguridad desarrollado por estudiantes de COMPUTEC.',
+            status: 'published'
+        },
+        {
+            id: 9,
+            title: 'Recursos para Estudiantes',
+            student: 'Estudiantes de COMPUTEC',
+            year: '2026',
+            category: 'Programación',
+            description: 'Portal con recursos digitales y materiales de apoyo para estudiantes y maestros.',
+            status: 'published'
         }
     ];
 
@@ -234,19 +252,34 @@ function initializeServices() {
 }
 
 // Obtener noticias desde localStorage
+function safeReadJSON(key, fallbackValue) {
+    const raw = localStorage.getItem(key);
+    if (!raw) {
+        return fallbackValue;
+    }
+
+    try {
+        const parsed = JSON.parse(raw);
+        return parsed == null ? fallbackValue : parsed;
+    } catch (error) {
+        console.warn(`Datos inválidos en localStorage para "${key}". Se usarán valores por defecto.`, error);
+        return fallbackValue;
+    }
+}
+
 function getNews() {
-    const news = localStorage.getItem('news');
-    return news ? JSON.parse(news) : [];
+    const news = safeReadJSON('news', []);
+    return Array.isArray(news) ? news : [];
 }
 
 function getProjects() {
-    const projects = localStorage.getItem('projects');
-    return projects ? JSON.parse(projects) : [];
+    const projects = safeReadJSON('projects', []);
+    return Array.isArray(projects) ? projects : [];
 }
 
 function getServices() {
-    const services = localStorage.getItem('services');
-    return services ? JSON.parse(services) : [];
+    const services = safeReadJSON('services', []);
+    return Array.isArray(services) ? services : [];
 }
 
 function escapeHtml(value) {
@@ -311,6 +344,69 @@ function renderProjects() {
     const projectsGrid = document.querySelector('.projects-grid');
     if (!projectsGrid) return;
 
+    const projectPalettes = [
+        {
+            image: 'linear-gradient(135deg, #2563eb 0%, #60a5fa 100%)',
+            button: 'linear-gradient(135deg, #2563eb 0%, #60a5fa 100%)',
+            badge: 'linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%)',
+            buttonText: '#ffffff'
+        },
+        {
+            image: 'linear-gradient(135deg, #f97316 0%, #fb923c 100%)',
+            button: 'linear-gradient(135deg, #f97316 0%, #fdba74 100%)',
+            badge: 'linear-gradient(135deg, #ea580c 0%, #f97316 100%)',
+            buttonText: '#ffffff'
+        },
+        {
+            image: 'linear-gradient(135deg, #ec4899 0%, #f472b6 100%)',
+            button: 'linear-gradient(135deg, #ec4899 0%, #f9a8d4 100%)',
+            badge: 'linear-gradient(135deg, #db2777 0%, #ec4899 100%)',
+            buttonText: '#ffffff'
+        },
+        {
+            image: 'linear-gradient(135deg, #dc2626 0%, #f87171 100%)',
+            button: 'linear-gradient(135deg, #dc2626 0%, #fca5a5 100%)',
+            badge: 'linear-gradient(135deg, #b91c1c 0%, #dc2626 100%)',
+            buttonText: '#ffffff'
+        },
+        {
+            image: 'linear-gradient(135deg, #0891b2 0%, #22d3ee 100%)',
+            button: 'linear-gradient(135deg, #0891b2 0%, #67e8f9 100%)',
+            badge: 'linear-gradient(135deg, #0e7490 0%, #0891b2 100%)',
+            buttonText: '#ffffff'
+        },
+        {
+            image: 'linear-gradient(135deg, #059669 0%, #34d399 100%)',
+            button: 'linear-gradient(135deg, #059669 0%, #6ee7b7 100%)',
+            badge: 'linear-gradient(135deg, #047857 0%, #059669 100%)',
+            buttonText: '#ffffff'
+        },
+        {
+            image: 'linear-gradient(135deg, #eab308 0%, #fde047 100%)',
+            button: 'linear-gradient(135deg, #eab308 0%, #fef08a 100%)',
+            badge: 'linear-gradient(135deg, #ca8a04 0%, #eab308 100%)',
+            buttonText: '#1f2937'
+        },
+        {
+            image: 'linear-gradient(135deg, #8b5cf6 0%, #c4b5fd 100%)',
+            button: 'linear-gradient(135deg, #8b5cf6 0%, #ddd6fe 100%)',
+            badge: 'linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%)',
+            buttonText: '#ffffff'
+        },
+        {
+            image: 'linear-gradient(135deg, #0f766e 0%, #5eead4 100%)',
+            button: 'linear-gradient(135deg, #0f766e 0%, #99f6e4 100%)',
+            badge: 'linear-gradient(135deg, #115e59 0%, #0f766e 100%)',
+            buttonText: '#ffffff'
+        },
+        {
+            image: 'linear-gradient(135deg, #7c2d12 0%, #fdba74 100%)',
+            button: 'linear-gradient(135deg, #9a3412 0%, #fdba74 100%)',
+            badge: 'linear-gradient(135deg, #7c2d12 0%, #c2410c 100%)',
+            buttonText: '#ffffff'
+        }
+    ];
+
     const projectLinksByTitle = {
         'pcb system': 'https://pcbsystempr-cyber.github.io/pcbsystem2026/',
         'casa abierta': 'https://pcbsystempr-cyber.github.io/Casa-Abierta/',
@@ -319,6 +415,7 @@ function renderProjects() {
         'centro de impresiones escolares': 'https://pcbsystempr-cyber.github.io/CopiasPCB/',
         'solicitud de servicio tecnico': 'https://pcbsystempr-cyber.github.io/Servicio-Tecnico/',
         'electrodashboard pcb': 'https://pcbsystempr-cyber.github.io/electricity_tool_pcb/',
+        'recursos para estudiantes': 'https://pcbsystempr-cyber.github.io/Recursos-para-estudiantes-y-maestros/',
     };
 
     const resolveProjectLink = (project) => {
@@ -339,12 +436,13 @@ function renderProjects() {
         return;
     }
 
-    projectsGrid.innerHTML = projects.map(item => {
+    projectsGrid.innerHTML = projects.map((item, index) => {
         const projectLink = resolveProjectLink(item);
+        const palette = projectPalettes[index % projectPalettes.length];
         return `
-        <div class="project-card featured-project">
-            <div class="project-badge"><i class="fa-solid fa-code"></i> ${escapeHtml(item.category || 'Proyecto')}</div>
-            <div class="project-image">
+        <div class="project-card featured-project" style="--project-image-bg: ${palette.image}; --project-button-bg: ${palette.button}; --project-badge-bg: ${palette.badge}; --project-button-color: ${palette.buttonText};">
+            <div class="project-badge" style="background: ${palette.badge};"><i class="fa-solid fa-code"></i> ${escapeHtml(item.category || 'Proyecto')}</div>
+            <div class="project-image" style="background: ${palette.image};">
                 <i class="fa-solid fa-laptop-code"></i>
             </div>
             <div class="project-content">
@@ -354,7 +452,7 @@ function renderProjects() {
                 <div class="project-tech">
                     <span class="tech-tag">${escapeHtml(item.category || 'Tecnología')}</span>
                 </div>
-                <button class="view-project-btn" type="button" onclick="window.open('${projectLink}', '_blank')">Ver página</button>
+                <button class="view-project-btn" type="button" style="background: ${palette.button}; color: ${palette.buttonText};" onclick="window.open('${projectLink}', '_blank')">Ver página</button>
             </div>
         </div>
     `;
@@ -408,8 +506,8 @@ const defaultGalleryImages = [
 
 // Get gallery images from localStorage
 function getGalleryImages() {
-    const images = localStorage.getItem('galleryImages');
-    return images ? JSON.parse(images) : defaultGalleryImages;
+    const images = safeReadJSON('galleryImages', defaultGalleryImages);
+    return Array.isArray(images) ? images : defaultGalleryImages;
 }
 
 // Save gallery images to localStorage
@@ -419,8 +517,15 @@ function saveGalleryImages(images) {
 
 // Get gallery settings
 function getGallerySettings() {
-    const settings = localStorage.getItem('gallerySettings');
-    return settings ? JSON.parse(settings) : { transitionTime: 5000 };
+    const settings = safeReadJSON('gallerySettings', { transitionTime: 5000 });
+    if (!settings || typeof settings !== 'object') {
+        return { transitionTime: 5000 };
+    }
+
+    const transitionTime = Number.parseInt(settings.transitionTime, 10);
+    return {
+        transitionTime: Number.isFinite(transitionTime) && transitionTime > 0 ? transitionTime : 5000
+    };
 }
 
 // Save gallery settings
@@ -573,15 +678,33 @@ function updateSlide() {
 function startCarouselAutoAdvance(intervalTime) {
     if (carouselInterval) {
         clearInterval(carouselInterval);
+        carouselInterval = null;
     }
-    
+
+    const carousel = document.getElementById('gallery-carousel');
+    if (!carousel || document.hidden) {
+        return;
+    }
+
+    const images = getGalleryImages();
+    if (!Array.isArray(images) || images.length <= 1) {
+        return;
+    }
+
+    const safeInterval = Number.parseInt(intervalTime, 10);
+    const delay = Number.isFinite(safeInterval) && safeInterval > 0 ? safeInterval : 5000;
+
     carouselInterval = setInterval(() => {
-        const images = getGalleryImages();
-        if (images.length > 1) {
-            currentSlide = (currentSlide + 1) % images.length;
+        if (document.hidden) {
+            return;
+        }
+
+        const updatedImages = getGalleryImages();
+        if (Array.isArray(updatedImages) && updatedImages.length > 1) {
+            currentSlide = (currentSlide + 1) % updatedImages.length;
             updateSlide();
         }
-    }, intervalTime);
+    }, delay);
 }
 
 // Stop auto-advance
@@ -590,6 +713,18 @@ function stopCarouselAutoAdvance() {
         clearInterval(carouselInterval);
         carouselInterval = null;
     }
+}
+
+function bindVisibilityPerformance() {
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            stopCarouselAutoAdvance();
+            return;
+        }
+
+        const settings = getGallerySettings();
+        startCarouselAutoAdvance(settings.transitionTime);
+    });
 }
 
 // Render additional images in teacher gallery section
@@ -1169,6 +1304,48 @@ window.addEventListener('storage', function(event) {
     syncFromStorageChange(event.key);
 });
 
+let galleryBootstrapped = false;
+function bootstrapGalleryFeatures() {
+    if (galleryBootstrapped) {
+        return;
+    }
+
+    galleryBootstrapped = true;
+    initializeGallery();
+    renderGallery();
+    renderTeacherGallery();
+}
+
+function scheduleNonCriticalInit() {
+    const runWhenIdle = () => {
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(() => {
+                bootstrapGalleryFeatures();
+            }, { timeout: 1200 });
+        } else {
+            setTimeout(() => {
+                bootstrapGalleryFeatures();
+            }, 200);
+        }
+    };
+
+    const galleryAnchor = document.getElementById('gallery-carousel') || document.getElementById('teacher-gallery-grid');
+    if (!galleryAnchor || !('IntersectionObserver' in window)) {
+        runWhenIdle();
+        return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+        if (entries.some(entry => entry.isIntersecting)) {
+            observer.disconnect();
+            bootstrapGalleryFeatures();
+        }
+    }, { rootMargin: '220px 0px' });
+
+    observer.observe(galleryAnchor);
+    runWhenIdle();
+}
+
 // Inicializar todo
 document.addEventListener('DOMContentLoaded', function() {
     initializeNews();
@@ -1179,11 +1356,10 @@ document.addEventListener('DOMContentLoaded', function() {
     renderServices();
     updateAdminPanel();
     setupContactMessageCounter();
-    
-    // Initialize gallery
-    initializeGallery();
-    renderGallery();
-    renderTeacherGallery();
+    bindVisibilityPerformance();
+
+    // Carga diferida de galería para acelerar primer render.
+    scheduleNonCriticalInit();
     
     // Event listeners del admin
     const loginForm = document.getElementById('login-form');
@@ -1815,6 +1991,26 @@ window.onclick = function(event) {
     }
 }
 
+// ── EmailJS Configuration ────────────────────────────────────────────────────
+// 1. Crea una cuenta gratuita en https://www.emailjs.com
+// 2. Añade un "Email Service" (Gmail, Outlook, etc.) y copia el Service ID
+// 3. Crea un "Email Template" con las variables: {{from_name}}, {{from_email}},
+//    {{phone}}, {{subject_label}}, {{message}}, {{newsletter}}, {{to_email}}
+//    En "To Email" del template pon: {{to_email}}
+// 4. Copia tu Public Key desde Account → API Keys
+// 5. Pega los tres valores aquí:
+const EMAILJS_PUBLIC_KEY  = 'TU_PUBLIC_KEY_AQUI';   // ej. 'user_abc123'
+const EMAILJS_SERVICE_ID  = 'TU_SERVICE_ID_AQUI';   // ej. 'service_xyz'
+const EMAILJS_TEMPLATE_ID = 'TU_TEMPLATE_ID_AQUI';  // ej. 'template_abc'
+const CONTACT_DEST_EMAIL  = 'de167766@miescuela.pr';
+
+(function initEmailJS() {
+    if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY !== 'TU_PUBLIC_KEY_AQUI') {
+        emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+    }
+})();
+// ─────────────────────────────────────────────────────────────────────────────
+
 // Contact Form Functions
 function submitContactForm(event) {
     event.preventDefault();
@@ -1849,10 +2045,62 @@ function submitContactForm(event) {
         return;
     }
 
-    // Hide form and show success message
-    form.style.display = 'none';
-    formSuccess.style.display = 'block';
-    formSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Save message to localStorage for the admin dashboard
+    const messages = JSON.parse(localStorage.getItem('contactMessages') || '[]');
+    messages.unshift({
+        id: Date.now(),
+        name,
+        email,
+        phone: phone || '',
+        subject,
+        message,
+        newsletter,
+        date: new Date().toISOString(),
+        read: false
+    });
+    localStorage.setItem('contactMessages', JSON.stringify(messages));
+
+    // Send email via EmailJS
+    const subjectLabels = {
+        'informacion':      'Información sobre cursos',
+        'inscripcion':      'Inscripción',
+        'servicio-tecnico': 'Servicio técnico',
+        'sugerencia':       'Sugerencia',
+        'otro':             'Otro'
+    };
+
+    const submitBtn = form.querySelector('.submit-btn');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Enviando…'; }
+
+    const emailReady = typeof emailjs !== 'undefined' &&
+                       EMAILJS_PUBLIC_KEY  !== 'TU_PUBLIC_KEY_AQUI' &&
+                       EMAILJS_SERVICE_ID  !== 'TU_SERVICE_ID_AQUI' &&
+                       EMAILJS_TEMPLATE_ID !== 'TU_TEMPLATE_ID_AQUI';
+
+    const showSuccess = () => {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar mensaje'; }
+        form.style.display = 'none';
+        formSuccess.style.display = 'block';
+        formSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+
+    if (emailReady) {
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+            to_email:      CONTACT_DEST_EMAIL,
+            from_name:     name,
+            from_email:    email,
+            phone:         phone || 'No indicado',
+            subject_label: subjectLabels[subject] || subject,
+            message:       message,
+            newsletter:    newsletter ? 'Sí' : 'No'
+        }).then(showSuccess, function(err) {
+            console.error('EmailJS error:', err);
+            showSuccess(); // still show success to user; message is saved in admin
+        });
+    } else {
+        // EmailJS not configured yet — message is still saved in the admin dashboard
+        showSuccess();
+    }
 }
 
 function resetContactForm() {

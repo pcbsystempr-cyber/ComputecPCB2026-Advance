@@ -5,238 +5,401 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>IA COMPUTEC</title>
-    <meta name="description" content="Accede a la IA de COMPUTEC desde una página dedicada.">
+    <meta name="description" content="Asistente oficial de COMPUTEC para cursos, admisión, servicios y orientación tecnológica.">
     <link rel="icon" type="image/png" href="galeria/LogoLimpio4.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
     <style>
         :root {
-            --primary-color: #2563eb;
-            --secondary-color: #059669;
-            --text-dark: #111827;
-            --text-light: #64748b;
-            --white: #ffffff;
-            --gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-            --bg: linear-gradient(180deg, #e0f2fe 0%, #f8fafc 38%, #eef2ff 100%);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+            --page-bg: radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 32%),
+                       radial-gradient(circle at top right, rgba(6, 182, 212, 0.16), transparent 28%),
+                       linear-gradient(180deg, #e0f2fe 0%, #f8fafc 40%, #eef2ff 100%);
         }
 
         body {
             min-height: 100vh;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             color: var(--text-dark);
-            background: var(--bg);
+            background: var(--page-bg);
         }
 
-        .page-shell {
+        .ai-page {
             min-height: 100vh;
-            display: grid;
-            grid-template-rows: auto 1fr;
+            padding: 14px;
         }
 
-        .page-header {
+        .ai-page-shell {
+            width: min(1320px, 100%);
+            margin: 0 auto;
+        }
+
+        .ai-page-header {
+            /* override global header { position: fixed } from styles.css */
+            position: relative !important;
+            top: auto !important;
+            left: auto !important;
+            right: auto !important;
+            width: auto !important;
+            z-index: auto !important;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 16px;
-            padding: 18px 22px;
-            background: rgba(255, 255, 255, 0.88);
-            backdrop-filter: blur(14px);
-            border-bottom: 1px solid rgba(148, 163, 184, 0.22);
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            flex-wrap: nowrap;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 8px 14px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.78);
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            backdrop-filter: blur(18px);
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
         }
 
-        .header-copy {
+        .ai-page-copy {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 9px;
+            min-width: 0;
         }
 
-        .header-icon {
-            width: 46px;
-            height: 46px;
-            border-radius: 14px;
+        .ai-page-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
             display: grid;
             place-items: center;
-            color: var(--white);
+            color: #fff;
             background: var(--gradient);
-            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.28);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28);
             flex: 0 0 auto;
+            font-size: 0.85rem;
         }
 
-        .header-text h1 {
-            font-size: 1.15rem;
+        .ai-page-copy h1 {
+            margin: 0;
+            font-size: 0.92rem;
             font-weight: 700;
+            white-space: nowrap;
         }
 
-        .header-text p {
-            color: var(--text-light);
-            font-size: 0.95rem;
-            margin-top: 2px;
+        /* hide description to save space */
+        .ai-page-copy p {
+            display: none;
         }
 
-        .header-actions {
+        .ai-page-actions {
             display: flex;
-            align-items: center;
-            gap: 10px;
+            gap: 6px;
+            flex-shrink: 0;
         }
 
-        .header-link {
+        .ai-page-link {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 10px 14px;
+            justify-content: center;
+            gap: 5px;
+            padding: 6px 11px;
             border-radius: 999px;
-            text-decoration: none;
             font-weight: 600;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+            font-size: 0.78rem;
+            text-decoration: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            white-space: nowrap;
         }
 
-        .header-link:hover {
+        .ai-page-link:hover {
             transform: translateY(-1px);
         }
 
-        .header-link.primary {
+        .ai-page-link.primary {
             background: var(--gradient);
-            color: var(--white);
-            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.22);
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.22);
         }
 
-        .header-link.secondary {
-            background: rgba(255, 255, 255, 0.92);
+        .ai-page-link.secondary {
+            background: rgba(255, 255, 255, 0.9);
             color: var(--text-dark);
-            border: 1px solid rgba(148, 163, 184, 0.28);
+            border: 1px solid rgba(148, 163, 184, 0.25);
         }
 
-        .page-main {
-            padding: 22px;
-        }
-
-        .ai-frame-wrap {
-            width: min(1400px, 100%);
-            height: calc(100vh - 128px);
-            margin: 0 auto;
-            border-radius: 24px;
+        #ai-toggle-btn {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
             overflow: hidden;
-            background: rgba(255, 255, 255, 0.82);
-            border: 1px solid rgba(148, 163, 184, 0.24);
-            box-shadow: 0 26px 70px rgba(15, 23, 42, 0.12);
-        }
-
-        .ai-frame {
-            width: 100%;
-            height: 100%;
+            clip: rect(0 0 0 0);
             border: 0;
-            background: #fff;
         }
 
-        .frame-fallback {
-            padding: 18px 22px;
-            color: var(--text-light);
-            text-align: center;
+        #ai-assistant-root {
+            position: static;
+            inset: auto;
+            pointer-events: auto;
+        }
+
+        #ai-assistant-root .ai-panel {
+            position: relative;
+            right: auto;
+            bottom: auto;
+            width: 100%;
+            height: calc(100vh - 78px);
+            min-height: 480px;
+            max-height: none;
+            margin: 0;
+            border-radius: 20px;
+            opacity: 1;
+            transform: none;
+            pointer-events: auto;
+            box-shadow: 0 16px 48px rgba(15, 23, 42, 0.14);
+        }
+
+        #ai-assistant-root .ai-panel:not(.ai-open) {
+            opacity: 1;
+            transform: none;
+            pointer-events: auto;
+        }
+
+        .ai-close-btn {
+            display: none;
+        }
+
+        /* Fix: global header{} rule also hits .ai-panel-header — restore its gradient + white text */
+        .ai-panel-header {
+            position: relative !important;
+            top: auto !important;
+            left: auto !important;
+            right: auto !important;
+            width: auto !important;
+            z-index: auto !important;
+            background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 60%),
+                        var(--gradient) !important;
+            color: #fff !important;
+            box-shadow: none !important;
+        }
+
+        .ai-panel-header h3,
+        .ai-panel-sub,
+        .ai-panel-sub .ai-status-dot ~ * {
+            color: #fff !important;
+        }
+
+        .ai-icon-btn {
+            color: rgba(255,255,255,0.85) !important;
+        }
+        .ai-icon-btn:hover {
+            background: rgba(255,255,255,0.18) !important;
+            color: #fff !important;
+        }
+
+        .ai-messages {
+            padding: 10px 14px;
+            gap: 7px;
+        }
+
+        .ai-bubble {
+            max-width: min(78%, 780px);
+            padding: 8px 11px;
+            font-size: 0.86rem;
+            line-height: 1.4;
+        }
+
+        .ai-chip {
+            padding: 4px 10px;
+            font-size: 0.74rem;
+        }
+
+        .ai-input {
+            padding: 8px 12px;
+            font-size: 0.86rem;
+        }
+
+        .ai-form {
+            padding: 8px 10px;
+        }
+
+        .ai-panel-header {
+            padding: 10px 14px;
+        }
+
+        .ai-panel-header h3 {
             font-size: 0.95rem;
         }
 
-        .frame-fallback a {
-            color: var(--primary-color);
-            font-weight: 700;
-        }
-
-        @media (max-width: 900px) {
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .header-actions {
-                width: 100%;
-                flex-wrap: wrap;
-            }
-
-            .page-main {
-                padding: 14px;
-            }
-
-            .ai-frame-wrap {
-                height: calc(100vh - 182px);
-                border-radius: 18px;
-            }
-        }
-
         @media (max-width: 560px) {
-            .header-copy {
-                align-items: flex-start;
+            .ai-page {
+                padding: 8px;
             }
 
-            .header-text h1 {
-                font-size: 1rem;
-            }
+            .ai-page-link span { display: none; } /* sólo íconos en móvil */
+            .ai-page-link { padding: 6px 9px; }
 
-            .header-text p {
-                font-size: 0.88rem;
+            #ai-assistant-root .ai-panel {
+                min-height: 0;
+                height: calc(100vh - 72px);
+                border-radius: 14px;
             }
+        }
 
-            .header-link {
-                width: 100%;
-                justify-content: center;
-            }
+        /* ── Dark mode overrides for ai.html page shell ── */
+        body.dark-mode {
+            --page-bg: #0f172a;
+            background: #0f172a;
+            color: #f1f5f9;
+        }
 
-            .ai-frame-wrap {
-                height: calc(100vh - 220px);
-            }
+        body.dark-mode .ai-page-header {
+            background: rgba(30, 41, 59, 0.92);
+            border-color: rgba(71, 85, 105, 0.35);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+        }
+
+        body.dark-mode .ai-page-copy h1 {
+            color: #f1f5f9;
+        }
+
+        body.dark-mode .ai-page-copy p {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .ai-page-link.secondary {
+            background: rgba(30, 41, 59, 0.9);
+            color: #e2e8f0;
+            border-color: rgba(71, 85, 105, 0.4);
+        }
+
+        /* Toggle button */
+        #ai-theme-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 15px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            background: rgba(255, 255, 255, 0.88);
+            color: var(--text-dark);
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        body.dark-mode #ai-theme-toggle {
+            background: rgba(30, 41, 59, 0.9);
+            color: #e2e8f0;
+            border-color: rgba(71, 85, 105, 0.4);
+        }
+
+        #ai-theme-toggle:hover {
+            transform: translateY(-1px);
         }
     </style>
 </head>
 <body>
-    <div class="page-shell">
-        <header class="page-header">
-            <div class="header-copy">
-                <div class="header-icon"><i class="fa-solid fa-robot"></i></div>
-                <div class="header-text">
-                    <h1>IA COMPUTEC</h1>
-                    <p>Asistente completo para preguntas sobre cursos, admisión, servicios y orientación tecnológica.</p>
+    <div class="ai-page">
+        <div class="ai-page-shell">
+            <header class="ai-page-header">
+                <div class="ai-page-copy">
+                    <div class="ai-page-icon"><i class="fa-solid fa-robot"></i></div>
+                    <div>
+                        <h1>IA COMPUTEC</h1>
+                        <p>Asistente oficial para cursos, admisión, servicios técnicos, proyectos y orientación escolar.</p>
+                    </div>
                 </div>
-            </div>
-            <div class="header-actions">
-                <a class="header-link secondary" href="index.html"><i class="fa-solid fa-arrow-left"></i> Volver al sitio</a>
-                <a class="header-link primary" href="https://computec-ai-tutor-31755169330.us-west1.run.app/" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-up-right-from-square"></i> Abrir en pestaña nueva</a>
-            </div>
-        </header>
+                <div class="ai-page-actions">
+                    <button id="ai-theme-toggle" type="button" aria-label="Cambiar tema">
+                        <i class="fa-solid fa-moon"></i><span>Oscuro</span>
+                    </button>
+                    <a class="ai-page-link secondary" href="index.html"><i class="fa-solid fa-arrow-left"></i> Volver al sitio</a>
+                    <a class="ai-page-link primary" href="mailto:de167766@miescuela.pr"><i class="fa-solid fa-envelope"></i> Contactar escuela</a>
+                </div>
+            </header>
 
-        <main class="page-main">
-            <div class="ai-frame-wrap">
-                <iframe
-                    class="ai-frame"
-                    src="https://computec-ai-tutor-31755169330.us-west1.run.app/"
-                    title="IA COMPUTEC"
-                    loading="eager"
-                    referrerpolicy="strict-origin-when-cross-origin"
-                    allow="clipboard-read; clipboard-write"
-                ></iframe>
+            <button id="ai-toggle-btn" type="button" aria-expanded="true" aria-hidden="true" tabindex="-1">
+                <span class="ai-badge" hidden>0</span>
+            </button>
+
+            <div id="ai-assistant-root">
+                <section class="ai-panel ai-open" aria-hidden="false">
+                    <header class="ai-panel-header">
+                        <div class="ai-panel-title-wrap">
+                            <div class="ai-panel-avatar"><i class="fa-solid fa-robot"></i></div>
+                            <div>
+                                <h3>IA COMPUTEC</h3>
+                                <p class="ai-panel-sub"><span class="ai-status-dot"></span> En línea</p>
+                            </div>
+                        </div>
+                        <div class="ai-panel-actions">
+                            <button type="button" class="ai-icon-btn ai-clear-btn" title="Limpiar conversación" aria-label="Limpiar conversación">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                            <button type="button" class="ai-icon-btn ai-close-btn" title="Cerrar" aria-label="Cerrar">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </header>
+
+                    <div class="ai-messages" aria-live="polite"></div>
+                    <div class="ai-chips"></div>
+
+                    <form class="ai-form">
+                        <input class="ai-input" type="text" placeholder="Escribe tu pregunta sobre COMPUTEC..." autocomplete="off">
+                        <button class="ai-send-btn" type="submit" aria-label="Enviar mensaje">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+
+                    <p class="ai-footer-note">
+                        La IA puede apoyarte con información general. Si necesitas ayuda oficial, escribe a
+                        <a class="ai-link-btn" href="mailto:de167766@miescuela.pr">de167766@miescuela.pr</a>.
+                    </p>
+                </section>
             </div>
-            <p class="frame-fallback">
-                Si la IA no carga dentro de esta página, usa
-                <a href="https://computec-ai-tutor-31755169330.us-west1.run.app/" target="_blank" rel="noopener noreferrer">este acceso directo</a>.
-            </p>
-        </main>
+        </div>
     </div>
+
+    <script src="ai-assistant.js"></script>
     <script>
+        // ── Theme init ──
         (function () {
-            const externalUrl = 'https://computec-ai-tutor-31755169330.us-west1.run.app/';
-            const isMobile = window.matchMedia('(max-width: 768px)').matches;
-            if (isMobile && window.location.search !== '?desktop=1') {
-                window.location.replace(externalUrl);
-            }
+            var saved = localStorage.getItem('theme');
+            if (saved === 'dark') document.body.classList.add('dark-mode');
         })();
+
+        function syncThemeToggle() {
+            var isDark = document.body.classList.contains('dark-mode');
+            var btn    = document.getElementById('ai-theme-toggle');
+            if (!btn) return;
+            btn.querySelector('i').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            btn.querySelector('span').textContent = isDark ? 'Claro' : 'Oscuro';
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            syncThemeToggle();
+
+            document.getElementById('ai-theme-toggle').addEventListener('click', function () {
+                document.body.classList.toggle('dark-mode');
+                var isDark = document.body.classList.contains('dark-mode');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                syncThemeToggle();
+            });
+        });
+
+        window.addEventListener('load', function () {
+            if (window.AIComputec && typeof window.AIComputec.open === 'function') {
+                window.AIComputec.open();
+            }
+        });
+
+        // Borrar historial al salir de la página de IA
+        window.addEventListener('beforeunload', function () {
+            localStorage.removeItem('aiComputecHistory');
+        });
     </script>
 </body>
 </html>

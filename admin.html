@@ -1165,6 +1165,25 @@
         </div>
     </div>
 
+    <!-- Modal: verificación de contraseña por rol -->
+    <div id="role-auth-gate" class="admin-auth-gate" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="role-auth-title">
+        <div class="admin-auth-card">
+            <h3 id="role-auth-title"><i class="fa-solid fa-user-shield"></i> Verificar rol</h3>
+            <p id="role-auth-desc">Ingresa la contraseña para activar el rol <strong id="role-auth-name"></strong>.</p>
+            <form id="role-auth-form" onsubmit="handleRolePasswordSubmit(event)">
+                <div id="role-auth-error" class="admin-auth-error"></div>
+                <div class="form-group">
+                    <label for="role-auth-password">Contraseña del rol</label>
+                    <input type="password" id="role-auth-password" autocomplete="off" required>
+                </div>
+                <div class="admin-auth-actions">
+                    <button type="button" class="btn-secondary" onclick="cancelRolePassword()"><i class="fa-solid fa-times"></i> Cancelar</button>
+                    <button type="submit" class="btn-primary"><i class="fa-solid fa-check"></i> Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div id="unsaved-banner" class="unsaved-banner">
         <i class="fa-solid fa-exclamation-triangle"></i>
         Tienes cambios sin guardar. Guarda el formulario antes de salir.
@@ -1187,6 +1206,15 @@
                 <button class="tab-btn" data-target="tab-services" onclick="openTab('services', this)">
                     <i class="fa-solid fa-screwdriver-wrench"></i> Servicios
                 </button>
+                <button class="tab-btn" data-target="tab-messages" onclick="openTab('messages', this)">
+                    <i class="fa-solid fa-envelope"></i> Mensajes <span class="badge" id="messages-badge" style="display:none;"></span>
+                </button>
+            </div>
+
+            <!-- No-permission notice for viewer role -->
+            <div id="role-no-tabs-msg" style="display:none;padding:2rem 1.5rem;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;color:#64748b;text-align:center;margin-top:1.5rem;">
+                <i class="fa-solid fa-lock" style="font-size:2rem;margin-bottom:0.75rem;display:block;color:#94a3b8;"></i>
+                <strong>Sin acceso</strong><br>Tu rol (<span id="role-no-tabs-role"></span>) no tiene permisos para acceder a ninguna sección del panel.
             </div>
 
             <!-- Tab Content: News -->
@@ -1344,6 +1372,17 @@
                 </div>
             </div>
 
+            <!-- Tab Content: Messages -->
+            <div id="tab-messages" class="tab-content">
+                <div class="news-list-section">
+                    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.25rem;">
+                        <h3 style="margin:0;"><i class="fa-solid fa-envelope" style="margin-right:0.4rem;"></i> Mensajes de Contacto</h3>
+                        <button class="btn-secondary" onclick="markAllMessagesRead()" style="font-size:0.85rem;"><i class="fa-solid fa-check-double"></i> Marcar todos como leídos</button>
+                    </div>
+                    <div id="admin-messages-list" class="news-list"></div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -1371,13 +1410,28 @@
             ACTIVE_ROLE: 'computec_admin_active_role',
             ACTIVITY: 'computec_admin_activity',
             SNAPSHOTS: 'computec_admin_snapshots',
-            DRAFT_PREFIX: 'computec_admin_draft_'
+            DRAFT_PREFIX: 'computec_admin_draft_',
+            CONTACT_MESSAGES: 'contactMessages'
         };
 
         const ROLE_PERMISSIONS = {
-            superadmin: ['manage_news', 'manage_projects', 'manage_services', 'manage_gallery', 'delete_content', 'import_export', 'manage_security'],
-            editor: ['manage_news', 'manage_projects', 'manage_services', 'manage_gallery'],
-            moderador: ['manage_news', 'manage_services']
+            superadmin: ['manage_news', 'manage_projects', 'manage_services', 'manage_gallery', 'delete_content', 'import_export', 'manage_security', 'publish_content', 'manage_analytics'],
+            editor: ['manage_news', 'manage_projects', 'manage_services', 'publish_content', 'manage_analytics'],
+            media_manager: ['manage_gallery', 'manage_analytics'],
+            moderator: ['manage_news', 'manage_projects', 'manage_services', 'manage_analytics'],
+            viewer: []
+        };
+
+        // SHA-256 hashes de las contraseñas requeridas para activar cada rol.
+        // Roles no listados aquí (media_manager, viewer) no requieren contraseña.
+        // Para cambiar una contraseña, reemplaza el hash correspondiente.
+        //   superadmin → "Sup3rAdmin26!"
+        //   editor     → "Editor26!"
+        //   moderator  → "Mod3rator26!"
+        const ROLE_PASSWORDS = {
+            superadmin: '815dd6aed1597c9c251e952c2734eceb0195528457a3241dfadbc6a527af0363',
+            editor:     '05c517651c44303b33275bf8b25990e1a2203f9962267fe0384210b468a7bb3a',
+            moderator:  '521e5414dde96039c070215fef615a6083465daa5f0df7b26e72690b4d655f2f'
         };
 
         const FORM_DRAFT_KEYS = {
@@ -1818,6 +1872,8 @@
                 renderProjectsList();
             } else if (tabName === 'services') {
                 renderServicesList();
+            } else if (tabName === 'messages') {
+                renderMessagesList();
             } else if (tabName === 'activity') {
                 renderActivityLog();
             } else if (tabName === 'security') {
@@ -1854,6 +1910,18 @@
             return authenticated;
         }
 
+        function setEntryRoleViewer() {
+            if (!SessionManager.isAuthenticated()) {
+                return;
+            }
+
+            try {
+                sessionStorage.setItem(STORAGE_KEYS.ACTIVE_ROLE, 'viewer');
+            } catch (error) {
+                console.warn('No se pudo establecer el rol inicial viewer.', error);
+            }
+        }
+
         async function handleAdminPageLogin(event) {
             event.preventDefault();
 
@@ -1876,6 +1944,7 @@
                 }
 
                 setAdminAuthGateVisible(false);
+                setEntryRoleViewer();
                 usernameInput.value = '';
                 passwordInput.value = '';
                 applyRoleUI();
@@ -1941,6 +2010,9 @@
             return true;
         }
 
+        // Rol pendiente mientras se muestra el modal de contraseña
+        let _pendingRole = null;
+
         function bindRoleSelector() {
             const roleSelector = document.getElementById('role-selector');
             if (!roleSelector) {
@@ -1949,15 +2021,100 @@
 
             roleSelector.addEventListener('change', function (event) {
                 const selectedRole = event.target.value;
-                const changed = setCurrentRole(selectedRole);
-                applyRoleUI();
 
-                if (changed) {
-                    showNotification('Rol activo cambiado a ' + selectedRole + '.', 'info', 2000);
-                } else {
-                    showNotification('No se pudo cambiar el rol activo.', 'error', 2200);
+                // Roles que no necesitan contraseña: aplicar de inmediato
+                if (!ROLE_PASSWORDS[selectedRole]) {
+                    const changed = setCurrentRole(selectedRole);
+                    applyRoleUI();
+                    if (changed) {
+                        showNotification('Rol activo cambiado a ' + selectedRole + '.', 'info', 2000);
+                    } else {
+                        showNotification('No se pudo cambiar el rol activo.', 'error', 2200);
+                    }
+                    return;
                 }
+
+                // Rol protegido: guardar el rol pendiente y mostrar modal
+                _pendingRole = selectedRole;
+                // Revertir visualmente el selector hasta confirmar
+                const currentRole = getCurrentRole();
+                roleSelector.value = currentRole || 'superadmin';
+                showRolePasswordModal(selectedRole);
             });
+        }
+
+        function showRolePasswordModal(role) {
+            const gate = document.getElementById('role-auth-gate');
+            const nameEl = document.getElementById('role-auth-name');
+            const errorEl = document.getElementById('role-auth-error');
+            const input = document.getElementById('role-auth-password');
+            if (!gate) return;
+            if (nameEl) nameEl.textContent = role;
+            if (errorEl) { errorEl.style.display = 'none'; errorEl.textContent = ''; }
+            if (input) input.value = '';
+            gate.classList.add('active');
+            gate.setAttribute('aria-hidden', 'false');
+            if (input) setTimeout(() => input.focus(), 80);
+        }
+
+        function cancelRolePassword() {
+            _pendingRole = null;
+            const gate = document.getElementById('role-auth-gate');
+            if (gate) {
+                gate.classList.remove('active');
+                gate.setAttribute('aria-hidden', 'true');
+            }
+        }
+
+        async function handleRolePasswordSubmit(event) {
+            event.preventDefault();
+            const input = document.getElementById('role-auth-password');
+            const errorEl = document.getElementById('role-auth-error');
+            if (!input || !_pendingRole) return;
+
+            const enteredHash = await PasswordHasher.hashPassword(input.value);
+            let valid = false;
+
+            // Intentar validación contra Supabase
+            try {
+                valid = await AuthDatabase.validateRolePassword(_pendingRole, enteredHash);
+            } catch (dbErr) {
+                console.warn('Supabase no disponible para validar contraseña de rol; usando fallback local.', dbErr);
+                // Fallback: comparar contra los hashes locales
+                valid = ROLE_PASSWORDS[_pendingRole] && enteredHash === ROLE_PASSWORDS[_pendingRole];
+            }
+
+            if (!valid) {
+                if (errorEl) {
+                    errorEl.textContent = 'Contraseña incorrecta para el rol ' + _pendingRole + '.';
+                    errorEl.style.display = 'block';
+                }
+                input.value = '';
+                input.focus();
+                return;
+            }
+
+            // Contraseña correcta
+            const roleToApply = _pendingRole;
+            _pendingRole = null;
+
+            const gate = document.getElementById('role-auth-gate');
+            if (gate) {
+                gate.classList.remove('active');
+                gate.setAttribute('aria-hidden', 'true');
+            }
+
+            const changed = setCurrentRole(roleToApply);
+            // Actualizar el selector visualmente
+            const roleSelector = document.getElementById('role-selector');
+            if (roleSelector) roleSelector.value = roleToApply;
+            applyRoleUI();
+
+            if (changed) {
+                showNotification('Rol activo cambiado a ' + roleToApply + '.', 'success', 2200);
+            } else {
+                showNotification('No se pudo aplicar el rol.', 'error', 2200);
+            }
         }
 
         function hasPermission(permission) {
@@ -2378,6 +2535,10 @@
             }
 
             const news = getNews();
+            if (payload.status === 'published' && !hasPermission('publish_content')) {
+                payload.status = 'draft';
+                showNotification('Sin permiso para publicar. Guardado como borrador.', 'info');
+            }
             if (payload.id) {
                 const index = news.findIndex(item => item.id === payload.id);
                 if (index !== -1) {
@@ -2541,6 +2702,10 @@
             }
 
             const projects = getProjects();
+            if (payload.status === 'published' && !hasPermission('publish_content')) {
+                payload.status = 'draft';
+                showNotification('Sin permiso para publicar. Guardado como borrador.', 'info');
+            }
             if (payload.id) {
                 const index = projects.findIndex(item => item.id === payload.id);
                 if (index !== -1) {
@@ -3021,6 +3186,111 @@
             input.click();
         }
 
+        // ── Contact Messages ──────────────────────────────────────────────────
+        function getContactMessages() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEYS.CONTACT_MESSAGES);
+                const parsed = raw ? JSON.parse(raw) : [];
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveContactMessages(msgs) {
+            localStorage.setItem(STORAGE_KEYS.CONTACT_MESSAGES, JSON.stringify(msgs));
+        }
+
+        function updateMessagesBadge() {
+            const badge = document.getElementById('messages-badge');
+            if (!badge) return;
+            const unread = getContactMessages().filter(m => !m.read).length;
+            if (unread > 0) {
+                badge.textContent = unread;
+                badge.style.display = '';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function renderMessagesList() {
+            const container = document.getElementById('admin-messages-list');
+            if (!container) return;
+            const msgs = getContactMessages();
+            updateMessagesBadge();
+
+            if (msgs.length === 0) {
+                container.innerHTML = '<p class="empty-message">No hay mensajes de contacto todavía.</p>';
+                return;
+            }
+
+            const subjectLabels = {
+                'informacion': 'Información General',
+                'admision': 'Admisión',
+                'servicios': 'Servicios Técnicos',
+                'proyectos': 'Proyectos Estudiantiles',
+                'otro': 'Otro'
+            };
+
+            container.innerHTML = msgs.map((m, index) => {
+                const date = m.date ? new Date(m.date).toLocaleString('es-PR', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
+                const subjectLabel = subjectLabels[m.subject] || m.subject || '—';
+                const unreadStyle = !m.read ? 'border-left:3px solid #2563eb;background:#eff6ff;' : '';
+                return `
+                <div class="news-item" style="display:flex;flex-direction:column;gap:0.4rem;${unreadStyle}" data-msg-index="${index}">
+                    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;">
+                        <span style="font-weight:600;font-size:1rem;">${escapeAdminHtml(m.name)}</span>
+                        <span style="font-size:0.78rem;color:#64748b;">${date}</span>
+                    </div>
+                    <div style="font-size:0.85rem;color:#475569;">
+                        <i class="fa-solid fa-envelope" style="margin-right:0.3rem;"></i>${escapeAdminHtml(m.email)}
+                        ${m.phone ? ' &nbsp;·&nbsp; <i class="fa-solid fa-phone" style="margin-right:0.3rem;"></i>' + escapeAdminHtml(m.phone) : ''}
+                    </div>
+                    <div style="font-size:0.88rem;font-weight:500;color:#1e293b;">
+                        <i class="fa-solid fa-tag" style="margin-right:0.3rem;color:#94a3b8;"></i>${escapeAdminHtml(subjectLabel)}
+                    </div>
+                    <p style="margin:0.3rem 0 0;color:#334155;font-size:0.92rem;white-space:pre-wrap;">${escapeAdminHtml(m.message)}</p>
+                    ${m.newsletter ? '<div style="font-size:0.78rem;color:#059669;"><i class="fa-solid fa-check"></i> Quiere recibir el boletín</div>' : ''}
+                    <div style="display:flex;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap;">
+                        ${!m.read ? `<button class="btn-secondary" style="font-size:0.8rem;padding:4px 10px;" onclick="markMessageRead(${index})"><i class="fa-solid fa-check"></i> Marcar leído</button>` : '<span style="font-size:0.78rem;color:#94a3b8;"><i class="fa-solid fa-check-double"></i> Leído</span>'}
+                        <button class="btn-danger" style="font-size:0.8rem;padding:4px 10px;" onclick="deleteMessage(${index})"><i class="fa-solid fa-trash"></i> Eliminar</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function markMessageRead(index) {
+            const msgs = getContactMessages();
+            if (msgs[index]) {
+                msgs[index].read = true;
+                saveContactMessages(msgs);
+                renderMessagesList();
+            }
+        }
+
+        function markAllMessagesRead() {
+            const msgs = getContactMessages().map(m => ({ ...m, read: true }));
+            saveContactMessages(msgs);
+            renderMessagesList();
+        }
+
+        function deleteMessage(index) {
+            const msgs = getContactMessages();
+            msgs.splice(index, 1);
+            saveContactMessages(msgs);
+            renderMessagesList();
+            showNotification('Mensaje eliminado.', 'info');
+        }
+
+        function escapeAdminHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+        // ─────────────────────────────────────────────────────────────────────
+
         function showNotification(message, type = 'info', duration = 3200, action = null) {
             const banner = document.createElement('div');
             banner.style.cssText = `
@@ -3115,6 +3385,7 @@
                 <div class="news-item"><div class="news-info"><h4>${getSnapshots().length}</h4><span>Respaldos automáticos</span></div></div>
                 <div class="news-item"><div class="news-info"><h4>${lastActivity ? formatDateTime(lastActivity.at) : '-'}</h4><span>Última actividad</span></div></div>
             `;
+            updateMessagesBadge();
         }
 
         function refreshSecurityStatus() {
@@ -3216,10 +3487,14 @@
             if (exportBtn) exportBtn.disabled = !hasPermission('import_export');
 
             const tabsToHide = [
-                { id: 'tab-gallery', perm: 'manage_gallery' },
-                { id: 'tab-projects', perm: 'manage_projects' },
-                { id: 'tab-services', perm: 'manage_services' },
-                { id: 'tab-security', perm: 'manage_security' }
+                { id: 'tab-news',     perm: 'manage_news'      },
+                { id: 'tab-gallery',  perm: 'manage_gallery'   },
+                { id: 'tab-projects', perm: 'manage_projects'  },
+                { id: 'tab-services', perm: 'manage_services'  },
+                { id: 'tab-messages', perm: 'manage_news'       },
+                { id: 'tab-activity', perm: 'manage_analytics' },
+                { id: 'tab-security', perm: 'manage_security'  },
+                { id: 'tab-stats',    perm: 'manage_analytics' }
             ];
 
             tabsToHide.forEach(tab => {
@@ -3237,6 +3512,15 @@
                     const target = (visibleNav.dataset.target || 'tab-news').replace('tab-', '');
                     openTab(target, visibleNav);
                 }
+            }
+
+            // Show a no-permission notice for roles with no accessible tabs
+            const noTabsMsg = document.getElementById('role-no-tabs-msg');
+            const anyTabVisible = Array.from(document.querySelectorAll('.tab-btn')).some(btn => btn.style.display !== 'none');
+            if (noTabsMsg) {
+                noTabsMsg.style.display = anyTabVisible ? 'none' : 'block';
+                const roleSpan = document.getElementById('role-no-tabs-role');
+                if (roleSpan) roleSpan.textContent = role || 'desconocido';
             }
         }
 
@@ -3429,7 +3713,9 @@
                         <select id="role-selector" aria-label="Rol activo del panel" style="padding:6px 10px;border:2px solid #e2e8f0;border-radius:8px;background:#ffffff;color:#0f172a;cursor:pointer;">
                             <option value="superadmin">superadmin</option>
                             <option value="editor">editor</option>
-                            <option value="moderador">moderador</option>
+                            <option value="media_manager">media_manager</option>
+                            <option value="moderator">moderator</option>
+                            <option value="viewer">viewer</option>
                         </select>
                     </div>
                 </div>
@@ -3518,7 +3804,9 @@
                             <select id="security-role" style="width:100%;padding:12px 15px;border:2px solid #e2e8f0;border-radius:8px;">
                                 <option value="superadmin">superadmin</option>
                                 <option value="editor">editor</option>
-                                <option value="moderador">moderador</option>
+                                <option value="media_manager">media_manager</option>
+                                <option value="moderator">moderator</option>
+                                <option value="viewer">viewer</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -3659,6 +3947,9 @@
         }
 
         bootstrap();
+        if (checkAuth()) {
+            setEntryRoleViewer();
+        }
         syncAuthAndRoleUI();
 
         document.addEventListener('visibilitychange', function() {

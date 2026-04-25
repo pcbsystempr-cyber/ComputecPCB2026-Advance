@@ -10,7 +10,7 @@
     const HISTORY_LIMIT = 50;
     const SCORE_THRESHOLD = 2.2;
 
-    const GEMINI_PROXY_URL = 'https://bfrpiyswqyozvdznihih.supabase.co/functions/v1/gemini-proxy';
+    const GEMINI_PROXY_URL = 'https://pcb-gemini-proxy.rvazquez-isspr.workers.dev/';
     const GEMINI_SYSTEM_PROMPT = `Eres IA COMPUTEC, el asistente virtual oficial de la Escuela Superior Vocacional Pablo Colón Berdécía (COMPUTEC) en Barranquitas, Puerto Rico.
 Respondes preguntas sobre cursos de tecnología, horarios, inscripciones, servicios técnicos, proyectos estudiantiles y actividades escolares.
 Mantiene un tono amigable, profesional y conciso. Responde siempre en español. No inventes información que no conoces; en ese caso, sugiere contactar la escuela.`;
@@ -209,7 +209,7 @@ Mantiene un tono amigable, profesional y conciso. Responde siempre en español. 
             phrases: ['cual es el horario','a que hora abren','horario de atencion','cuando atienden'],
             keywords: [{t:'horario',w:2},{t:'hora',w:1.5},{t:'abren',w:1.5},{t:'cierran',w:1.2},{t:'atienden',w:1.2},{t:'disponible',w:1}],
             tags: ['horario'],
-            answer: 'Atendemos de <strong>lunes a viernes, 7:00 AM – 3:00 PM</strong>. Las solicitudes de servicios técnicos también se atienden en ese horario.',
+            answer: 'El <strong>horario de capacitación es de 7:30 AM - 8:30 AM</strong>. Si necesitas confirmar disponibilidad adicional, usa la sección de contacto.',
             chips: ['¿Dónde están ubicados?','Contacto']
         },
         {
@@ -225,7 +225,7 @@ Mantiene un tono amigable, profesional y conciso. Responde siempre en español. 
             phrases: ['como contactarlos','como comunicarme','quiero contactar','numero de telefono','correo electronico'],
             keywords: [{t:'contacto',w:2},{t:'telefono',w:1.5},{t:'correo',w:1.5},{t:'email',w:1.5},{t:'comunicarme',w:1.2},{t:'hablar',w:1}],
             tags: ['contacto'],
-            answer: 'Podés escribirnos a <a href="mailto:computecpcb@gmail.com">computecpcb@gmail.com</a> o llamar al <strong>(787) 123-4567</strong>. También podés usar el formulario en la sección <a href="#contacto">Contacto</a>.',
+            answer: 'Podés escribirnos a <a href="mailto:de167766@miescuela.pr">de167766@miescuela.pr</a> o llamar al <strong>(787) 123-4567</strong>. También podés usar el formulario en la sección <a href="#contacto">Contacto</a>.',
             chips: ['¿Dónde están?','¿Cuál es el horario?']
         },
         {
@@ -548,37 +548,32 @@ Ver detalles en la sección <a href="#cursos">Cursos · Oportunidades</a>.`,
     }
 
     async function queryGemini(text) {
-        const supabasePublic = window.COMPUTEC_SUPABASE_PUBLIC || {};
-        const anonKey = supabasePublic.anonKey || '';
         const kbContext = buildKnowledgeContext(text);
-        const contents = state.history
+        const historyContext = state.history
             .filter(m => m.role === 'user' || m.role === 'bot')
             .slice(-10)
             .map(m => ({
-                role: m.role === 'user' ? 'user' : 'model',
-                parts: [{ text: m.role === 'user' ? m.text : stripHtml(m.html || '') }]
-            }));
-        contents.push({
-            role: 'user',
-            parts: [{
-                text: kbContext
-                    ? `${kbContext}\n\nPregunta del usuario: ${text}`
-                    : `Pregunta del usuario: ${text}`
-            }]
-        });
+                role: m.role === 'user' ? 'Usuario' : 'IA COMPUTEC',
+                text: m.role === 'user' ? m.text : stripHtml(m.html || '')
+            }))
+            .map(m => `${m.role}: ${m.text}`)
+            .join('\n');
 
-        const body = {
-            system_instruction: { parts: [{ text: GEMINI_SYSTEM_PROMPT }] },
-            contents
-        };
+        const prompt = [
+            GEMINI_SYSTEM_PROMPT,
+            kbContext ? `Contexto útil:\n${kbContext}` : '',
+            historyContext ? `Historial reciente:\n${historyContext}` : '',
+            `Pregunta del usuario: ${text}`
+        ]
+            .filter(Boolean)
+            .join('\n\n');
 
         const res = await fetch(GEMINI_PROXY_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                ...(anonKey ? { apikey: anonKey, Authorization: `Bearer ${anonKey}` } : {})
             },
-            body: JSON.stringify(body)
+            body: JSON.stringify({ message: prompt })
         });
 
         if (!res.ok) {
@@ -586,7 +581,7 @@ Ver detalles en la sección <a href="#cursos">Cursos · Oportunidades</a>.`,
         }
 
         const data = await res.json();
-        const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'No pude obtener una respuesta. Intenta de nuevo.';
+        const answer = data?.reply || data?.text || 'No pude obtener una respuesta. Intenta de nuevo.';
         return answer;
     }
 
@@ -666,7 +661,7 @@ Ver detalles en la sección <a href="#cursos">Cursos · Oportunidades</a>.`,
         const hour = new Date().getHours();
         const salute = hour < 12 ? 'Buenos días' : hour < 19 ? 'Buenas tardes' : 'Buenas noches';
         renderMessage('bot', `${salute} 👋 Soy <strong>IA COMPUTEC</strong>. Puedo ayudarte con cursos, horario, inscripción, servicios técnicos, carreras y más. ¿Qué necesitás saber?`);
-        renderChips(['¿Qué cursos hay?','¿Cuánto duran?','¿Dan certificado?','¿Dónde están?','¿Cómo me inscribo?']);
+        renderChips(['¿Qué cursos hay?','¿Cuánto duran?','¿Dan certificado?','¿Cómo me inscribo?','¿Tienen servicios técnicos?','¿Cuál es el horario?','¿Dónde están?','Contacto']);
     }
 
     function replayHistory() {
